@@ -1,4 +1,4 @@
-FROM python:3.9-slim
+FROM python:3.13-slim
 
 WORKDIR /workspace
 
@@ -18,7 +18,7 @@ COPY requirements.txt .
 # Instalar requerimientos
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar el resto de la aplicación
-COPY . .
+# # Copiar el resto de la aplicación
+# COPY . .
 
-CMD ["python", "app.py"]
+# CMD ["python", "app.py"]
