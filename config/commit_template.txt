@@ -1,0 +1,20 @@
+# Commit Types:
+# feat:     A new feature
+# fix:      A bug fix
+# refactor: A code change that neither fixes a bug nor adds a feature
+# style:    Code formatting changes (e.g., whitespace)
+# docs:     Changes to documentation
+# test:     Adding or modifying tests
+# chore:    Maintenance work (updating dependencies, etc.)
+# ci:       Changes to CI/CD pipeline
+
+# <type>: <short summary>
+# ^---- Keep under 50 characters and use imperative mood.
+# Example: "feat: add support for cryptocurrency data"
+
+# --- Detailed description of the change (optional) ---
+# Explain *why* the change was made and *how* it works. Add context if needed.
+#
+# --- Breaking Changes (optional) ---
+# Describe any breaking changes here, and include instructions for migration.
+# Example: "BREAKING CHANGE: Updated database schema. Data migration required."
