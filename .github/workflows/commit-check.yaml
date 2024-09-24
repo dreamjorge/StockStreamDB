@@ -1,0 +1,43 @@
+name: Commit Message Check
+
+on:
+  push:
+    branches:
+      - "*"
+  pull_request:
+    branches:
+      - "*"
+
+jobs:
+  commit_message_check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out the repository
+      uses: actions/checkout@v3
+
+    - name: Debug Commit Message
+      run: |
+        latest_commit=$(git log -1 --pretty=%B)
+        echo "Latest Commit Message: $latest_commit"
+
+    - name: Validate Commit Message
+      run: |
+        latest_commit=$(git log -1 --pretty=%B)
+        commit_regex='^(feat|fix|docs|style|refactor|test|chore)\([a-z0-9\-]+\): [A-Za-z0-9 ]{1,50}(\n\n[\s\S]+)?$'
+
+        echo "Validating commit message: $latest_commit"
+
+        # Skip validation for merge commits
+        if [[ "$latest_commit" == Merge* ]]; then
+          echo "Skipping commit message check for merge commit."
+          exit 0
+        fi
+
+        if ! [[ "$latest_commit" =~ $commit_regex ]]; then
+          echo "Error: Commit message does not follow the Conventional Commits format."
+          echo "Please follow the format: <type>(<scope>): <description>"
+          echo "Examples: feat(api): add authentication"
+          echo "          fix(db): resolve data fetch bug"
+          exit 1
+        fi
