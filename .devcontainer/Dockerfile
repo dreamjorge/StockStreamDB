@@ -1,20 +1,24 @@
-# Use the official Python image from the Docker Hub
-FROM python:3.9-slim
+FROM python:3.13-slim
 
-# Set the working directory in the container
 WORKDIR /workspace
 
-# Copy the requirements file into the container
+# Actualiza pip y asegura que tengas las herramientas necesarias
+RUN pip install --upgrade pip
+
+# Instalar dependencias del sistema necesarias
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libssl-dev \
+    libffi-dev \
+    python3-dev
+
+# Copiar archivos de requerimientos
 COPY requirements.txt .
 
-# Install the dependencies
+# Instalar requerimientos
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application code into the container
-COPY . .
+# # Copiar el resto de la aplicación
+# COPY . .
 
-# Expose the port that the application will run on
-EXPOSE 8000
-
-# Set the default command to run when starting the container
-CMD ["bash"]
+# CMD ["python", "app.py"]
