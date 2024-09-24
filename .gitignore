@@ -1,2 +1,3 @@
 *.pyc
 venv/
+src/utils/github_issue_creator/.env
