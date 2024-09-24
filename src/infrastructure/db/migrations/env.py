@@ -3,9 +3,6 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from alembic import context
 
-# Import your models' Base class
-from src.infrastructure.db.db_setup import Base  # Adjust the path to your project structure
-
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -13,9 +10,15 @@ config = context.config
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 fileConfig(config.config_file_name)
+import sys
+import os
 
-# set the target_metadata for 'autogenerate' support
-target_metadata = Base.metadata  # Assign your models' metadata here
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../../..'))  # Adjust path to point to the base src folder
+from src.infrastructure.db.models import Base
+# add your model's MetaData object here for 'autogenerate' support
+# from myapp import mymodel
+# from src.infrastructure.db.models import Base  # Import your Base here
+target_metadata = Base.metadata
 
 # Create an engine using the connection URL from alembic.ini
 def run_migrations_offline():

@@ -1,0 +1,10 @@
+Metadata-Version: 2.1
+Name: stock_stream_db
+Version: 1.0.0
+Summary: Recolección de datos de acciones, criptomonedas y noticias
+Requires-Dist: yfinance
+Requires-Dist: ccxt
+Requires-Dist: newsapi-python
+Requires-Dist: vaderSentiment
+Requires-Dist: SQLAlchemy
+Requires-Dist: Flask
