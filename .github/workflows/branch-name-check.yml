@@ -21,6 +21,13 @@ jobs:
         branch_name=$(echo "${GITHUB_REF#refs/heads/}")
         branch_regex='^(feature|bugfix|improvement|docs|hotfix)/[a-z0-9]+(-[a-z0-9]+)*$'
 
+        # Skip the check if it's a pull request reference
+        if [[ "$branch_name" == "refs/pull/"* ]]; then
+          echo "Skipping branch name check for pull requests."
+          exit 0
+        fi
+
+        # Perform branch name validation
         if ! [[ "$branch_name" =~ $branch_regex ]]; then
           echo "Error: Branch name '$branch_name' does not follow the naming convention."
           echo "Branch names must follow the format: <type>/<short-description>"
