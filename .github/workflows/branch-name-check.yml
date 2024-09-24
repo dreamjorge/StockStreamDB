@@ -40,13 +40,3 @@ jobs:
           echo "Examples: feature/add-stock-crud, bugfix/fix-db-error"
           exit 1
         fi
-
-    - name: Check commit message format
-      run: |
-        latest_commit=$(git log -1 --pretty=%B)
-        commit_regex='^(feat|fix|docs|style|refactor|test|chore)\([a-z0-9\-]+\): [A-Za-z0-9 ]{1,50}(\n\n.*)?$'
-
-        if ! [[ "$latest_commit" =~ $commit_regex ]]; then
-          echo "Error: Commit message does not follow the Conventional Commits format."
-          exit 1
-        fi

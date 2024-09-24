@@ -1,0 +1,27 @@
+name: Commit Message Check
+
+on:
+  push:
+    branches:
+      - "*"
+  pull_request:
+    branches:
+      - "*"
+
+jobs:
+  commit_message_check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out the repository
+      uses: actions/checkout@v3
+
+    - name: Validate Commit Message
+      run: |
+        latest_commit=$(git log -1 --pretty=%B)
+        commit_regex='^(feat|fix|docs|style|refactor|test|chore)\([a-z0-9\-]+\): [A-Za-z0-9 ]{1,50}(\n\n[A-Za-z0-9 ]+)?$'
+
+        if ! [[ "$latest_commit" =~ $commit_regex ]]; then
+          echo "Error: Commit message does not follow the Conventional Commits format."
+          exit 1
+        fi
