@@ -20,12 +20,17 @@ jobs:
       run: |
         branch_name=$(echo "${GITHUB_REF#refs/heads/}")
         
-        # List of branches that should be excluded from naming convention check
+        # Skip branch validation for pull requests and certain branches
+        if [[ "$GITHUB_REF" == refs/pull/* ]]; then
+          echo "Skipping branch name check for pull requests."
+          exit 0
+        fi
+
         if [[ "$branch_name" == "master" || "$branch_name" == "main" ]]; then
           echo "Branch name '$branch_name' is excluded from validation."
           exit 0
         fi
-        
+
         # Regex for valid branch names
         branch_regex='^(feature|bugfix|improvement|docs|hotfix)/[a-z0-9]+(-[a-z0-9]+)*$'
 
