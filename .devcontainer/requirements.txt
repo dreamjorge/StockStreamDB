@@ -1,0 +1,9 @@
+# Example requirements.txt file
+sqlalchemy
+alembic
+requests
+black
+pytest
+yfinance
+pandas
+finnhub-python
