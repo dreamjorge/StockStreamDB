@@ -7,7 +7,6 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-
 RUN apt-get update && \
     apt-get install -y curl && \
     curl -sL https://deb.nodesource.com/setup_18.x | bash - && \
@@ -15,7 +14,7 @@ RUN apt-get update && \
     npm install -g commitizen && \
     npm install --save-dev cz-conventional-changelog
 
-    
+
 # Copy the project files
 COPY . .
 
