@@ -28,6 +28,12 @@ jobs:
 
         echo "Validating commit message: $latest_commit"
 
+        # Skip validation for merge commits
+        if [[ "$latest_commit" == Merge* ]]; then
+          echo "Skipping commit message check for merge commit."
+          exit 0
+        fi
+
         if ! [[ "$latest_commit" =~ $commit_regex ]]; then
           echo "Error: Commit message does not follow the Conventional Commits format."
           echo "Please follow the format: <type>(<scope>): <description>"
