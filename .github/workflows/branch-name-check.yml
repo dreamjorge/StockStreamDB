@@ -19,7 +19,7 @@ jobs:
     - name: Validate Branch Name
       run: |
         branch_name=$(echo "${GITHUB_REF#refs/heads/}")
-        branch_regex="^(feature|bugfix|improvement|docs|hotfix)/[a-z0-9\-_]+$"
+        branch_regex="^(feature|bugfix|improvement|docs|hotfix)/[a-z0-9\-]+$"
 
         if ! [[ "$branch_name" =~ $branch_regex ]]; then
           echo "Error: Branch name '$branch_name' does not follow the naming convention."
