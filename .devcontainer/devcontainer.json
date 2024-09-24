@@ -1,25 +1,32 @@
 {
-    "name": "Python 3",
-    "image": "mcr.microsoft.com/devcontainers/python:1-3.12-bullseye",    "features": {
-      "ghcr.io/devcontainers/features/docker-in-docker:1": {}
-    },
-    "forwardPorts": [8000, 8080],
-    "postCreateCommand": "pip3 install --user -r requirements.txt",
-    "customizations": {
-      "vscode": {
-        "extensions": [
-          "ms-python.python",
-          "ms-python.vscode-pylance"
-        ],
-        "settings": {
-          "python.pythonPath": "/usr/local/bin/python3",
-          "python.linting.enabled": true,
-          "python.linting.pylintEnabled": true,
-          "python.formatting.autopep8Path": "/usr/local/bin/autopep8",
-          "python.formatting.provider": "autopep8"
-        }
-      }
-    },
-    "remoteUser": "vscode"
+  "name": "StockStreamDB DevContainer",
+  "context": "..",
+  "dockerFile": "Dockerfile",
+  "workspaceFolder": "/workspace",
+
+  // Features like auto-starting the app
+  "postCreateCommand": "pip install -r requirements.txt",
+
+  // Add any extensions you need (optional)
+  "extensions": [
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-python.black-formatter",
+    "esbenp.prettier-vscode"
+  ],
+
+  // Forward ports to access a web service from the host
+  "forwardPorts": [8000],
+
+  // Setup environment variables
+  "remoteEnv": {
+    "DATABASE_URL": "sqlite:///src/infrastructure/db/database.db",
+    "API_KEY": "your-api-key"
+  },
+
+  // Python interpreter settings
+  "settings": {
+    "python.defaultInterpreterPath": "/usr/local/bin/python",
+    "python.formatting.provider": "black"
   }
-  
+}

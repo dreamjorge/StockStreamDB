@@ -1,24 +1,31 @@
-FROM python:3.13-slim
+# Use the official Python image as a base
+FROM python:3.8-slim
 
-WORKDIR /workspace
-
-# Actualiza pip y asegura que tengas las herramientas necesarias
-RUN pip install --upgrade pip
-
-# Instalar dependencias del sistema necesarias
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
-    libssl-dev \
-    libffi-dev \
-    python3-dev
+    git \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copiar archivos de requerimientos
-COPY requirements.txt .
+# Set up a working directory
+WORKDIR /workspace
 
-# Instalar requerimientos
-RUN pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies
+COPY requirements.txt /workspace/requirements.txt
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
 
-# # Copiar el resto de la aplicación
-# COPY . .
+# Install Alembic for migrations
+RUN pip install alembic
 
-# CMD ["python", "app.py"]
+# Install black (optional for formatting)
+RUN pip install black
+
+# Install other project-specific dependencies here if needed
+
+# Expose port 8000 if running a web service or API
+EXPOSE 8000
+
+# Default command
+CMD [ "bash" ]
