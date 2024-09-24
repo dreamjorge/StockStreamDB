@@ -1,8 +1,12 @@
 name: Auto-Generate Branch for Issue
 
+# on:
+#   issues:
+#     types: [opened]
+
 on:
-  issues:
-    types: [opened]
+  workflow_dispatch:
+
 
 jobs:
   create_branch:
