@@ -1,4 +1,4 @@
-name: Branch Name Check
+name: Branch Name and Commit Message Check
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       - "*"
 
 jobs:
-  branch_name_check:
+  branch_and_commit_check:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,18 +19,29 @@ jobs:
     - name: Validate Branch Name
       run: |
         branch_name=$(echo "${GITHUB_REF#refs/heads/}")
-        branch_regex='^(feature|bugfix|improvement|docs|hotfix)/[a-z0-9]+(-[a-z0-9]+)*$'
-
-        # Skip the check if it's a pull request reference
-        if [[ "$branch_name" == "refs/pull/"* ]]; then
-          echo "Skipping branch name check for pull requests."
+        
+        # List of branches that should be excluded from naming convention check
+        if [[ "$branch_name" == "master" || "$branch_name" == "main" ]]; then
+          echo "Branch name '$branch_name' is excluded from validation."
           exit 0
         fi
+        
+        # Regex for valid branch names
+        branch_regex='^(feature|bugfix|improvement|docs|hotfix)/[a-z0-9]+(-[a-z0-9]+)*$'
 
-        # Perform branch name validation
         if ! [[ "$branch_name" =~ $branch_regex ]]; then
           echo "Error: Branch name '$branch_name' does not follow the naming convention."
           echo "Branch names must follow the format: <type>/<short-description>"
           echo "Examples: feature/add-stock-crud, bugfix/fix-db-error"
+          exit 1
+        fi
+
+    - name: Check commit message format
+      run: |
+        latest_commit=$(git log -1 --pretty=%B)
+        commit_regex='^(feat|fix|docs|style|refactor|test|chore)\([a-z0-9\-]+\): [A-Za-z0-9 ]{1,50}$'
+
+        if ! [[ "$latest_commit" =~ $commit_regex ]]; then
+          echo "Error: Commit message does not follow the Conventional Commits format."
           exit 1
         fi
