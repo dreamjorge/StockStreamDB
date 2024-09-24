@@ -12,6 +12,10 @@ jobs:
   create_branch:
     runs-on: ubuntu-latest
 
+    permissions:
+      issues: write
+      contents: write
+
     steps:
     - name: Check out the repository
       uses: actions/checkout@v3
