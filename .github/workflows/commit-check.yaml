@@ -16,10 +16,17 @@ jobs:
     - name: Check out the repository
       uses: actions/checkout@v3
 
+    - name: Debug Commit Message
+      run: |
+        latest_commit=$(git log -1 --pretty=%B)
+        echo "Latest Commit Message: $latest_commit"
+
     - name: Validate Commit Message
       run: |
         latest_commit=$(git log -1 --pretty=%B)
         commit_regex='^(feat|fix|docs|style|refactor|test|chore)\([a-z0-9\-]+\): [A-Za-z0-9 ]{1,50}(\n\n[\s\S]+)?$'
+
+        echo "Validating commit message: $latest_commit"
 
         if ! [[ "$latest_commit" =~ $commit_regex ]]; then
           echo "Error: Commit message does not follow the Conventional Commits format."
