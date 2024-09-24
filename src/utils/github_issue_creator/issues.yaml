@@ -1,29 +1,29 @@
 issues:
-  - prefix: "[TEST]"
-    title: "Create Unit Tests for GitHub Issue Creator Script"
+  - prefix: "[AUTO]"
+    title: "Auto-generate branch for issue #{{ issue_number }}"
     description: |
-      We need to create unit tests for the GitHub issue creation script to ensure its reliability and correctness.
-      
-      The tests should cover:
-      - Label creation and updates
-      - Milestone creation and updates
-      - Issue creation and updates
-      - Rate limit checks
-      - Error handling for label and milestone creation failures
-      - Validation of environment variables (like GitHub tokens)
-      
+      We need to implement an automated system to generate branches for each issue following a specific naming convention.
+
+      The branch naming convention should be:
+      - `<type>/<issue-number>-<short-description>`
+      - Where `<type>` can be one of: `feature`, `bugfix`, `improvement`, or `docs`.
+      - `<short-description>` should be a lowercase, hyphen-separated version of the issue title.
+
+      **Example**:
+      - Issue Title: "Improve login functionality"
+      - Generated Branch Name: `feature/{{ issue_number }}-improve-login-functionality`
+
       **Acceptance Criteria**:
-      - Unit tests should be written using pytest.
-      - Mock external API calls to GitHub to avoid real network requests.
-      - Ensure high code coverage, aiming for at least 80%.
+      - Branch name should follow the naming convention.
+      - The system should be integrated into the CI/CD pipeline and trigger when a new issue is created.
+      - A comment should be posted on the issue with the name of the auto-generated branch.
+
     labels:
-      - testing
-      - backend
+      - automation
+      - Backend
       - enhancement
     label_colors:
-      testing: "ffcc00"
+      automation: "ffaa00"
       backend: "00ccff"
       enhancement: "00ff99"
-    milestone: "Unit Testing"
-    milestone_description: "Milestone for adding unit tests to the GitHub issue creator script."
-    milestone_due_on: "2024-10-10"
+    milestone: "Automation for GitHub Workflow"
