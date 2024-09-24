@@ -1,5 +1,6 @@
 class Stock:
-    def __init__(self, ticker: str, close_price: float, date: str):
+    def __init__(self, ticker: str, name: str, industry: str, sector: str):
         self.ticker = ticker
-        self.close_price = close_price
-        self.date = date
+        self.name = name
+        self.industry = industry
+        self.sector = sector
