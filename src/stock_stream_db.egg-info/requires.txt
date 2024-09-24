@@ -1,0 +1,6 @@
+yfinance
+ccxt
+newsapi-python
+vaderSentiment
+SQLAlchemy
+Flask
