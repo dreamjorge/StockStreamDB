@@ -4,3 +4,6 @@ alembic
 requests
 black
 pytest
+yfinance
+pandas
+finnhub-python

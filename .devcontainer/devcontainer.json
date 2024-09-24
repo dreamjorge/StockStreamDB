@@ -1,32 +1,8 @@
 {
-  "name": "StockStreamDB DevContainer",
-  "context": "..",
+  "name": "StockStreamDB Dev Container",
   "dockerFile": "Dockerfile",
-  "workspaceFolder": "/workspace",
-
-  // Features like auto-starting the app
-  "postCreateCommand": "pip install -r requirements.txt",
-
-  // Add any extensions you need (optional)
-  "extensions": [
-    "ms-python.python",
-    "ms-python.vscode-pylance",
-    "ms-python.black-formatter",
-    "esbenp.prettier-vscode"
-  ],
-
-  // Forward ports to access a web service from the host
-  "forwardPorts": [8000],
-
-  // Setup environment variables
-  "remoteEnv": {
-    "DATABASE_URL": "sqlite:///src/infrastructure/db/database.db",
-    "API_KEY": "your-api-key"
-  },
-
-  // Python interpreter settings
+  "extensions": ["ms-python.python"],
   "settings": {
-    "python.defaultInterpreterPath": "/usr/local/bin/python",
-    "python.formatting.provider": "black"
+    "python.defaultInterpreterPath": "/usr/local/bin/python"
   }
 }

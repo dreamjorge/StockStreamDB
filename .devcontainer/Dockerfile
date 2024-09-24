@@ -1,31 +1,14 @@
-# Use the official Python image as a base
-FROM python:3.8-slim
+FROM python:3.9-slim
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    git \
-    libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
+# Set working directory
+WORKDIR /app
 
-# Set up a working directory
-WORKDIR /workspace
-
-# Install Python dependencies
-COPY requirements.txt /workspace/requirements.txt
-RUN pip install --upgrade pip
+# Copy requirements and install dependencies
+COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-# Install Alembic for migrations
-RUN pip install alembic
+# Copy the project files
+COPY . .
 
-# Install black (optional for formatting)
-RUN pip install black
-
-# Install other project-specific dependencies here if needed
-
-# Expose port 8000 if running a web service or API
-EXPOSE 8000
-
-# Default command
-CMD [ "bash" ]
+# Default command to run the CLI
+CMD ["python", "src/interfaces/cli/cli.py", "--help"]
