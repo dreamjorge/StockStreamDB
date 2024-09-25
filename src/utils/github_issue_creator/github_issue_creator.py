@@ -132,15 +132,26 @@ class IssueManager:
             self.update_issue_if_needed(issue, labels, milestone_title, label_colors)
             return "updated"
 
+
         logging.info(f"Creating new issue: {title}")
         milestone = None
         if milestone_title:
             milestone = self.github_manager.create_milestone_if_not_exists(milestone_title, description=milestone_description, due_on=milestone_due_on)
 
         if labels:
-            self.ensure_labels_exist(labels, label_colors)
+            # Ensure labels exist, considering case insensitivity
+            existing_labels = self.github_manager.get_cached_labels().values()
+            normalized_existing_labels = {label.name.lower(): label for label in existing_labels}
+            
+            for label in labels:
+                normalized_label = label.lower()
+                if normalized_label in normalized_existing_labels:
+                    logging.info(f"Using existing label: {normalized_existing_labels[normalized_label].name}")
+                else:
+                    logging.info(f"Creating new label: {label}")
+                    self.github_manager.create_label(label, label_colors.get(label, "FFFFFF"))
 
-        valid_labels = [label for label in self.github_manager.get_cached_labels().values() if label.name in labels]
+        valid_labels = [label for label in self.github_manager.get_cached_labels().values() if label.name.lower() in [l.lower() for l in labels]]
 
         issue_kwargs = {"title": title, "body": body, "labels": valid_labels}
         if milestone:
