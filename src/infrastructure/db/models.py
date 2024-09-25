@@ -6,11 +6,15 @@ Base = declarative_base()
 
 class Stock(Base):
     __tablename__ = 'stocks'
-    
-    ticker = Column(String(10), primary_key=True)
-    name = Column(String(255))
-    industry = Column(String(255))
-    sector = Column(String(255))
+
+    ticker = Column(String, primary_key=True)
+    name = Column(String)
+    industry = Column(String)
+    sector = Column(String)
+    close_price = Column(Float)
+    market_cap = Column(Float)
+    pe_ratio = Column(Float)
+
 
     prices = relationship("StockPrice", back_populates="stock")
     fundamentals = relationship("Fundamental", back_populates="stock")

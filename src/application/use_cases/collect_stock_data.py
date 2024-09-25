@@ -14,7 +14,15 @@ class CollectStockData:
             print(f"No data found for {ticker} in the period '{period}'.")
             return None
 
-        # Create the Stock entity with the correct parameters
-        stock = Stock(ticker, stock_data['name'], stock_data['sector'], stock_data['close'])
-
+        # Create the Stock entity with the correct parameters, passing industry and other fields
+        stock = Stock(
+            ticker=stock_data['ticker'],
+            name=stock_data['name'],
+            industry=stock_data['industry'],  # Add the missing industry field
+            sector=stock_data['sector'],
+            close_price=stock_data['close'],
+            date=stock_data['date']
+        )
         return stock
+
+

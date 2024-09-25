@@ -13,14 +13,26 @@ class GetStock:
         self.stock_repository = stock_repository
 
     def execute(self, ticker: str) -> Stock:
-        return self.stock_repository.get_stock_by_ticker(ticker)
+        return self.stock_repository.get(ticker)
 
 class UpdateStock:
-    def __init__(self, stock_repository: StockRepository):
+    def __init__(self, stock_repository):
         self.stock_repository = stock_repository
 
-    def execute(self, stock: Stock) -> Stock:
-        return self.stock_repository.update_stock(stock)
+    def execute(self, stock):
+        # Fetch the existing stock record from the repository
+        existing_stock = self.stock_repository.get(stock.ticker)
+
+        # Update fields dynamically
+        for attr, value in stock.__dict__.items():
+            if hasattr(existing_stock, attr):
+                setattr(existing_stock, attr, value)
+
+        # Save updated stock back to the repository
+        self.stock_repository.update(existing_stock)
+
+        return existing_stock
+
 
 class DeleteStock:
     def __init__(self, stock_repository: StockRepository):

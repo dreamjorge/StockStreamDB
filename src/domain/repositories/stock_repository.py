@@ -8,11 +8,11 @@ class StockRepository(ABC):
         pass
 
     @abstractmethod
-    def get_stock_by_ticker(self, ticker: str) -> Stock:
+    def get(self, ticker: str) -> Stock:
         pass
 
     @abstractmethod
-    def update_stock(self, stock: Stock) -> Stock:
+    def update(self, stock: Stock) -> Stock:
         pass
 
     @abstractmethod
