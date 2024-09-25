@@ -7,15 +7,24 @@ from src.domain.models.stock import Stock
 def test_collect_stock_data_success():
     # Simulate the repository returning valid data
     mock_repo = MagicMock()
-    mock_repo.get_stock_data.return_value = {'close': 150, 'date': '2023-09-01'}
-    
+    mock_repo.get_stock_data.return_value = {
+        'ticker': 'AAPL',
+        'name': 'Apple Inc.',
+        'sector': 'Technology',
+        'close': 150,
+        'date': '2023-09-01'
+    }
+
     use_case = CollectStockData(mock_repo)
     stock = use_case.execute('AAPL', '1mo')
 
     assert stock is not None
     assert stock.ticker == 'AAPL'
     assert stock.close_price == 150
-    assert stock.date == '2023-09-01'
+    assert stock.name == 'Apple Inc.'
+    assert stock.sector == 'Technology'
+
+
 
 # Test when no data is found (None returned by the repository)
 def test_collect_stock_data_no_data():
