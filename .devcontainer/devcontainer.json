@@ -1,7 +1,12 @@
 {
   "name": "StockStreamDB Dev Container",
   "dockerFile": "Dockerfile",
-  "extensions": ["ms-python.python"],
+  "extensions": [
+    "ms-python.python",
+    "mhutchie.git-graph",  
+    "eamodio.gitlens",  
+    "GitHub.copilot"
+  ],
   "settings": {
     "python.defaultInterpreterPath": "/usr/local/bin/python"
   }
