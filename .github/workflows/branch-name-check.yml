@@ -14,13 +14,15 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Get current branch name
-      run: echo "Branch name: ${{ github.ref }}" && echo "${{ github.ref }}" | sed 's/refs\/heads\///g' > branch_name.txt
+      run: |
+        echo "Branch name: ${{ github.ref }}"
+        echo "${{ github.ref }}" | sed 's/refs\/heads\///g' > branch_name.txt
 
     - name: Validate branch name
       id: validate_branch_name
       run: |
         branch_name=$(cat branch_name.txt)
-        regex="^(feature|bugfix|hotfix)\/[0-9]+-[a-z0-9-]+$"
+        regex="^(feature|bugfix|hotfix|fix)\/[0-9]+-[a-z0-9-]+$" # Updated regex to include 'fix'
         if [[ ! "$branch_name" =~ $regex ]]; then
           echo "Invalid branch name '$branch_name'. Must follow 'type/issue-description' format."
           exit 1
