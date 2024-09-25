@@ -1,42 +1,28 @@
-name: Branch Name and Commit Message Check
+name: Validate Branch Name
 
 on:
   push:
     branches:
-      - "*"
-  pull_request:
-    branches:
-      - "*"
+      - '**'
 
 jobs:
-  branch_and_commit_check:
+  check-branch-name:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check out the repository
-      uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-    - name: Validate Branch Name
+    - name: Get current branch name
+      run: echo "Branch name: ${{ github.ref }}" && echo "${{ github.ref }}" | sed 's/refs\/heads\///g' > branch_name.txt
+
+    - name: Validate branch name
+      id: validate_branch_name
       run: |
-        branch_name=$(echo "${GITHUB_REF#refs/heads/}")
-        
-        # Skip branch validation for pull requests and certain branches
-        if [[ "$GITHUB_REF" == refs/pull/* ]]; then
-          echo "Skipping branch name check for pull requests."
-          exit 0
-        fi
-
-        if [[ "$branch_name" == "master" || "$branch_name" == "main" ]]; then
-          echo "Branch name '$branch_name' is excluded from validation."
-          exit 0
-        fi
-
-        # Regex for valid branch names
-        branch_regex='^(feature|bugfix|improvement|docs|hotfix)/[a-z0-9]+(-[a-z0-9]+)*$'
-
-        if ! [[ "$branch_name" =~ $branch_regex ]]; then
-          echo "Error: Branch name '$branch_name' does not follow the naming convention."
-          echo "Branch names must follow the format: <type>/<short-description>"
-          echo "Examples: feature/add-stock-crud, bugfix/fix-db-error"
+        branch_name=$(cat branch_name.txt)
+        regex="^(feature|bugfix|hotfix)\/[0-9]+-[a-z0-9-]+$"
+        if [[ ! "$branch_name" =~ $regex ]]; then
+          echo "Invalid branch name '$branch_name'. Must follow 'type/issue-description' format."
           exit 1
         fi
+      shell: bash
