@@ -1,12 +1,20 @@
 name: Auto-Generate Branch for Issue
 
+# on:
+#   issues:
+#     types: [opened]
+
 on:
-  issues:
-    types: [opened]
+  workflow_dispatch:
+
 
 jobs:
   create_branch:
     runs-on: ubuntu-latest
+
+    permissions:
+      issues: write
+      contents: write
 
     steps:
     - name: Check out the repository
@@ -15,31 +23,45 @@ jobs:
     - name: Get issue details
       id: issue
       run: |
+        echo "Issue number: ${{ github.event.issue.number }}"
+        echo "Issue title: ${{ github.event.issue.title }}"
         echo "##[set-output name=number;]${{ github.event.issue.number }}"
         echo "##[set-output name=title;]${{ github.event.issue.title }}"
 
-    - name: Create a branch from the issue
+    - name: Format branch name
+      id: format
       run: |
-        issue_number=${{ steps.issue.outputs.number }}
-        issue_title=${{ steps.issue.outputs.title }}
+        # Capture issue number and title
+        issue_number="${{ steps.issue.outputs.number }}"
+        issue_title="${{ steps.issue.outputs.title }}"
 
-        # Convert the issue title to lowercase and replace spaces with hyphens
-        branch_name=$(echo "${issue_title}" | tr '[:upper:]' '[:lower:]' | sed 's/ /-/g')
+        # Convert issue title to lowercase and replace spaces with hyphens
+        formatted_title=$(echo "$issue_title" | tr '[:upper:]' '[:lower:]' | sed 's/ /-/g')
 
-        # Choose a branch type (e.g., feature or bugfix) based on label
-        branch_type="feature"  # Modify this if needed based on your use case
+        # Limit the length of the formatted title to avoid excessively long branch names
+        short_title=$(echo "$formatted_title" | cut -c 1-30)
 
-        # Create the branch name with the issue number and short description
-        full_branch_name="${branch_type}/${issue_number}-${branch_name}"
+        # Branch type, default to "feature" unless a bug label is present
+        branch_type="feature"
 
-        # Checkout to the new branch
-        git checkout -b "$full_branch_name"
+        # Form the full branch name
+        full_branch_name="${branch_type}/${issue_number}-${short_title}"
 
-        # Push the branch to the repository
-        git push origin "$full_branch_name"
+        echo "Generated branch name: $full_branch_name"
+        echo "##[set-output name=branch_name;]$full_branch_name"
 
-    - name: Add a comment on the issue with branch name
+    - name: Create and push branch
       run: |
+        branch_name="${{ steps.format.outputs.branch_name }}"
+
+        # Create and push the new branch
+        git checkout -b "$branch_name"
+        git push origin "$branch_name"
+
+    - name: Add comment to issue
+      run: |
+        branch_name="${{ steps.format.outputs.branch_name }}"
+
         curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-        -X POST -d "{\"body\": \"Branch created: $full_branch_name\"}" \
-        "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments"
+          -X POST -d "{\"body\": \"Branch created: $branch_name\"}" \
+          "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments"
