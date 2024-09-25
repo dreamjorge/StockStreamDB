@@ -1,19 +1,13 @@
-from sqlalchemy import create_engine, Column, String, Float, DateTime
+from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
 
+# Create the Base for models to inherit from
 Base = declarative_base()
 
-class Stock(Base):
-    __tablename__ = 'stocks'
-
-    ticker = Column(String, primary_key=True)
-    close_price = Column(Float)
-    date = Column(DateTime)
-
-def get_engine():
-    return create_engine("sqlite:///src/infrastructure/db/database.db")
+# Create the database engine
+engine = create_engine("sqlite:///src/infrastructure/db/database.db")
 
 def init_db():
-    engine = get_engine()
+    # Import models here to avoid circular imports
+    from src.domain.models.stock import Stock
     Base.metadata.create_all(engine)

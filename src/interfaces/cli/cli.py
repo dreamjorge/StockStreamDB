@@ -1,9 +1,19 @@
+import sys
+import os
+
+# Add the project's root directory to the Python path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
+
+
 import argparse
 from src.application.use_cases.manage_stock import CreateStock, GetStock, UpdateStock, DeleteStock
 from src.infrastructure.db.stock_repository_impl import StockRepositoryImpl
 from src.domain.models.stock import Stock
 from sqlalchemy.orm import sessionmaker
 from src.infrastructure.db.db_setup import engine
+# from src.infrastructure.db.db_setup import get_engine
+
+# engine = get_engine()
 
 Session = sessionmaker(bind=engine)
 session = Session()

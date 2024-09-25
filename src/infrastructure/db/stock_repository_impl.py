@@ -11,21 +11,27 @@ class StockRepositoryImpl(StockRepository):
         self.session.commit()
         return stock
 
-    def get_stock_by_ticker(self, ticker: str) -> Stock:
+    def get(self, ticker: str) -> Stock:
         return self.session.query(Stock).filter_by(ticker=ticker).first()
 
-    def update_stock(self, stock: Stock) -> Stock:
-        existing_stock = self.get_stock_by_ticker(stock.ticker)
+    def update(self, stock: Stock) -> Stock:
+        existing_stock = self.get(stock.ticker)
         if existing_stock:
-            existing_stock.name = stock.name
-            existing_stock.industry = stock.industry
-            existing_stock.sector = stock.sector
+            print(f"Updating stock: {existing_stock.ticker}")
+            # Dynamically update all fields from the incoming stock object
+            for attr, value in stock.__dict__.items():
+                if hasattr(existing_stock, attr) and attr != "_sa_instance_state":
+                    print(f"Updating {attr}: {getattr(existing_stock, attr)} -> {value}")
+                    setattr(existing_stock, attr, value)
+            
             self.session.commit()
             return existing_stock
+        print("Stock not found")
         return None
 
+
     def delete_stock(self, ticker: str) -> bool:
-        stock = self.get_stock_by_ticker(ticker)
+        stock = self.get(ticker)
         if stock:
             self.session.delete(stock)
             self.session.commit()
