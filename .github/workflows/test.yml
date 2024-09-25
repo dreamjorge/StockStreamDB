@@ -28,7 +28,7 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          pytest --cov=my_project tests/  # Replace "my_project" with your actual project
+          pytest --cov=src tests/
           coverage html  # Generate an HTML report
           coverage xml   # Generate an XML report for external tools like SonarCloud
 
