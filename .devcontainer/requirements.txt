@@ -10,3 +10,4 @@ finnhub-python
 pyyaml
 python-dotenv
 PyGithub
+pytest-cov
