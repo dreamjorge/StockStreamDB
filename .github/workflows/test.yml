@@ -1,12 +1,12 @@
-name: Run Tests
+name: Run Tests with Coverage
 
 on:
   push:
     branches:
-      - master  # Change this to your default branch
+      - main
   pull_request:
     branches:
-      - master  # Change this to your default branch
+      - main
 
 jobs:
   test:
@@ -19,13 +19,21 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'  # Specify the Python version
+          python-version: '3.x'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run tests
+      - name: Run tests with coverage
         run: |
-          pytest  # Assuming you are using pytest for tests
+          pytest --cov=my_project tests/  # Replace "my_project" with your actual project
+          coverage html  # Generate an HTML report
+          coverage xml   # Generate an XML report for external tools like SonarCloud
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: htmlcov/  # Upload the HTML coverage report to GitHub Actions artifacts
