@@ -22,9 +22,9 @@ jobs:
       id: validate_branch_name
       run: |
         branch_name=$(cat branch_name.txt)
-        regex="^(feature|bugfix|hotfix|fix)\/[0-9]+-[a-z0-9-]+$" # Updated regex to include 'fix'
+        regex="^(feature|bugfix|hotfix|fix)\/[0-9]+-[a-z0-9-]+$|^(master|main)$"  # Updated regex to include 'master' and 'main'
         if [[ ! "$branch_name" =~ $regex ]]; then
-          echo "Invalid branch name '$branch_name'. Must follow 'type/issue-description' format."
+          echo "Invalid branch name '$branch_name'. Must follow 'type/issue-description' format or be 'master'/'main'."
           exit 1
         fi
       shell: bash
