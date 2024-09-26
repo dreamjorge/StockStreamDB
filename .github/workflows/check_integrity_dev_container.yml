@@ -1,0 +1,38 @@
+name: Verify DevContainer Integrity
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:  # Allows manual trigger of the workflow
+
+jobs:
+  verify-devcontainer:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+
+      - name: Install Docker
+        uses: docker/setup-buildx-action@v2
+
+      - name: Set up QEMU (for multi-platform builds, optional)
+        uses: docker/setup-qemu-action@v2
+
+      - name: Build DevContainer
+        run: |
+          docker build -f .devcontainer/Dockerfile -t devcontainer-test .
+
+      - name: Verify DevContainer
+        run: |
+          docker run --rm devcontainer-test echo "DevContainer is working!"
+
+      - name: Lint DevContainer Configuration
+        run: |
+          docker run --rm devcontainer-test devcontainer-cli lint --config .devcontainer/devcontainer.json
+
+      # You can add more steps to run tests inside the container if required
