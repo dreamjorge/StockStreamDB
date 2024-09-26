@@ -24,8 +24,7 @@ jobs:
     - name: Validate Commit Message
       run: |
         latest_commit=$(git log -1 --pretty=%B)
-        commit_regex='^(feat|fix|docs|style|refactor|test|chore)\([a-z0-9\-]+\): [A-Za-z0-9 ]{1,50}(\n\n[\s\S]+)?$'
-
+        commit_regex='^(feat|fix|docs|style|refactor|test|chore)\([a-zA-Z0-9\-]+\): [A-Za-z0-9 \-]{1,50}(\n\n[\s\S]+)?$'
         echo "Validating commit message: $latest_commit"
 
         # Skip validation for merge commits

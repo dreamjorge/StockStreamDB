@@ -18,3 +18,8 @@ class StockRepository(ABC):
     @abstractmethod
     def delete_stock(self, ticker: str) -> bool:
         pass
+    
+    @abstractmethod
+    def save(self, stock):
+        pass
+

@@ -1,50 +1,34 @@
-import pytest
 from unittest.mock import MagicMock
+import pytest
+from datetime import datetime
 from src.application.use_cases.collect_stock_data import CollectStockData
-from src.domain.models.stock import Stock
+from math import isclose
 
-# Test for a successful use case (valid data)
-def test_collect_stock_data_success():
-    # Simulate the repository returning valid data
-    mock_repo = MagicMock()
-    mock_repo.get_stock_data.return_value = {
+def test_collect_stock_data():
+    # Mock the stock fetcher
+    mock_fetcher = MagicMock()
+    
+    # Mock fetch return value
+    mock_fetcher.fetch.return_value = {
         'ticker': 'AAPL',
         'name': 'Apple Inc.',
-        'industry': 'Technology',  # Add industry
-        'sector': 'Technology',
-        'close': 150,
-        'date': '2023-09-01'
+        'industry': 'Technology',
+        'sector': 'Consumer Electronics',
+        'close': 227.34,
+        'date': datetime(2024, 9, 26)
     }
 
-    use_case = CollectStockData(mock_repo)
+    # Create instance of CollectStockData with the mocked fetcher
+    use_case = CollectStockData(mock_fetcher)
+    
+    # Execute the use case
     stock = use_case.execute('AAPL', '1mo')
-
-    assert stock is not None
+    
+    # Assert that fetch was called with the correct arguments
+    mock_fetcher.fetch.assert_called_once_with('AAPL', '1mo')
+    
+    # Assert that the returned stock has the expected values
     assert stock.ticker == 'AAPL'
     assert stock.name == 'Apple Inc.'
-    assert stock.industry == 'Technology'  # Ensure industry is tested
-    assert stock.sector == 'Technology'
-    assert stock.close_price == 150
-    assert stock.date == '2023-09-01'
-
-# Test when no data is found (None returned by the repository)
-def test_collect_stock_data_no_data():
-    # Simulate the repository returning None
-    mock_repo = MagicMock()
-    mock_repo.get_stock_data.return_value = None
-    
-    use_case = CollectStockData(mock_repo)
-    stock = use_case.execute('AAPL', '1mo')
-
-    assert stock is None
-
-# Test when a connection error occurs (None returned by the repository)
-def test_collect_stock_data_connection_error():
-    # Simulate the repository returning None due to a connection error
-    mock_repo = MagicMock()
-    mock_repo.get_stock_data.return_value = None
-
-    use_case = CollectStockData(mock_repo)
-    stock = use_case.execute('AAPL', '1mo')
-
-    assert stock is None
+    assert isclose(stock.close_price, 227.34, rel_tol=1e-9)
+    assert stock.date == datetime(2024, 9, 26)

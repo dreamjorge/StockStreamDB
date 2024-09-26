@@ -28,6 +28,13 @@ class StockRepositoryImpl(StockRepository):
             return existing_stock
         print("Stock not found")
         return None
+    
+    def save(self, stock: Stock):
+        self.session.add(stock)
+        self.session.commit()
+
+    def get_stock_by_ticker(self, ticker):
+        return self.session.query(Stock).filter_by(ticker=ticker).first()
 
 
     def delete_stock(self, ticker: str) -> bool:
