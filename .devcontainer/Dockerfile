@@ -9,19 +9,14 @@ COPY requirements.txt .
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt
 
-# Install Git, Node.js, and Commitizen globally
+# Install Git, Node.js, npm, and build-essential (for building node-gyp dependencies)
 RUN apt-get update && \
-    apt-get install -y git curl && \
+    apt-get install -y git curl file unzip build-essential python3 && \
     curl -sL https://deb.nodesource.com/setup_18.x | bash - && \
-    apt-get install -y nodejs && \
-    npm install -g commitizen cz-conventional-changelog
+    apt-get install -y nodejs
 
-# Install devcontainer-cli
-RUN apt-get install -y unzip && \
-    curl -sSL https://github.com/devcontainers/cli/releases/download/v0.24.0/devcontainer-linux-amd64.tar.gz -o /tmp/devcontainer-cli.tar.gz && \
-    tar -xzf /tmp/devcontainer-cli.tar.gz -C /usr/local/bin devcontainer && \
-    chmod +x /usr/local/bin/devcontainer && \
-    rm /tmp/devcontainer-cli.tar.gz
+# Install devcontainer-cli from npm
+RUN npm install -g @devcontainers/cli
 
 # Configure Git to treat the project directory as a safe directory
 RUN git config --global --add safe.directory /workspaces/StockStreamDB
