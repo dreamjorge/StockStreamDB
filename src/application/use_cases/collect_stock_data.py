@@ -1,28 +1,31 @@
 from src.domain.models.stock import Stock
 from src.infrastructure.db.stock_repository import StockRepository
+from src.domain.stock_fetcher import StockFetcher  # Adjust the path to where StockFetcher is implemented
 
 class CollectStockData:
-    def __init__(self, stock_repository):
-        self.stock_repository = stock_repository
+    VALID_PERIODS = ['1mo', '3mo', '6mo', '1y', '5y']
+
+    def __init__(self, stock_fetcher):
+        self.stock_fetcher = stock_fetcher
 
     def execute(self, ticker: str, period: str):
-        # Get the stock data
-        stock_data = self.stock_repository.get_stock_data(ticker, period)
-
-        # Handle the case where no data is found
+        if period not in self.VALID_PERIODS:
+            raise ValueError("Invalid period")
+        
+        stock_data = self.stock_fetcher.fetch(ticker, period)
         if stock_data is None:
             print(f"No data found for {ticker} in the period '{period}'.")
             return None
 
-        # Create the Stock entity with the correct parameters, passing industry and other fields
         stock = Stock(
             ticker=stock_data['ticker'],
             name=stock_data['name'],
-            industry=stock_data['industry'],  # Add the missing industry field
+            industry=stock_data['industry'],
             sector=stock_data['sector'],
             close_price=stock_data['close'],
             date=stock_data['date']
         )
         return stock
+
 
 
