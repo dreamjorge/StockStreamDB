@@ -16,6 +16,13 @@ RUN apt-get update && \
     apt-get install -y nodejs && \
     npm install -g commitizen cz-conventional-changelog
 
+# Install devcontainer-cli
+RUN apt-get install -y unzip && \
+    curl -sSL https://github.com/devcontainers/cli/releases/download/v0.24.0/devcontainer-linux-amd64.tar.gz -o /tmp/devcontainer-cli.tar.gz && \
+    tar -xzf /tmp/devcontainer-cli.tar.gz -C /usr/local/bin devcontainer && \
+    chmod +x /usr/local/bin/devcontainer && \
+    rm /tmp/devcontainer-cli.tar.gz
+
 # Configure Git to treat the project directory as a safe directory
 RUN git config --global --add safe.directory /workspaces/StockStreamDB
 
