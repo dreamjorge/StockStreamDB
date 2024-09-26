@@ -31,8 +31,6 @@ jobs:
         run: |
           docker run --rm devcontainer-test echo "DevContainer is working!"
 
-      - name: Lint DevContainer Configuration
+      - name: Validate DevContainer JSON Schema
         run: |
-              docker run --rm devcontainer-test devcontainer lint --config .devcontainer/devcontainer.json
-
-      # You can add more steps to run tests inside the container if required
+          docker run --rm devcontainer-test ajv validate -s https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json -d .devcontainer/devcontainer.json

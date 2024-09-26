@@ -18,6 +18,9 @@ RUN apt-get update && \
 # Install devcontainer-cli from npm
 RUN npm install -g @devcontainers/cli
 
+# Install ajv-cli for JSON Schema validation
+RUN npm install -g ajv-cli
+
 # Configure Git to treat the project directory as a safe directory
 RUN git config --global --add safe.directory /workspaces/StockStreamDB
 
