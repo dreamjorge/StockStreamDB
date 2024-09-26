@@ -2,6 +2,7 @@ from unittest.mock import MagicMock
 import pytest
 from datetime import datetime
 from src.application.use_cases.collect_stock_data import CollectStockData
+from math import isclose
 
 def test_collect_stock_data():
     # Mock the stock fetcher
@@ -29,5 +30,5 @@ def test_collect_stock_data():
     # Assert that the returned stock has the expected values
     assert stock.ticker == 'AAPL'
     assert stock.name == 'Apple Inc.'
-    assert stock.close_price == 227.34
+    assert isclose(stock.close_price, 227.34, rel_tol=1e-9)
     assert stock.date == datetime(2024, 9, 26)
