@@ -33,6 +33,6 @@ jobs:
 
       - name: Lint DevContainer Configuration
         run: |
-          docker run --rm devcontainer-test devcontainer-cli lint --config .devcontainer/devcontainer.json
+              docker run --rm devcontainer-test devcontainer lint --config .devcontainer/devcontainer.json
 
       # You can add more steps to run tests inside the container if required
