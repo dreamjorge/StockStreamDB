@@ -31,9 +31,10 @@ jobs:
         run: |
           docker run --rm devcontainer-test echo "DevContainer is working!"
 
-      - name: Download DevContainer Schema
+      - name: Download DevContainer Schema Files
         run: |
           curl -o devContainer.schema.json https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json
+          curl -o devContainer.base.schema.json https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.base.schema.json
 
       - name: Validate DevContainer JSON Schema
         run: |
