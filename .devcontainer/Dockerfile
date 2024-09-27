@@ -24,6 +24,11 @@ RUN npm install -g ajv-cli
 # Configure Git to treat the project directory as a safe directory
 RUN git config --global --add safe.directory /workspaces/StockStreamDB
 
+# Install Python dependencies
+RUN pip install --upgrade pip setuptools
+RUN pip install .
+
+
 # Create a local .czrc configuration in the project directory
 RUN echo '{ "path": "/usr/lib/node_modules/cz-conventional-changelog" }' > /workspaces/StockStreamDB/.czrc
 
