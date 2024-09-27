@@ -1,4 +1,3 @@
-
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
@@ -15,18 +14,33 @@ from src.infrastructure.fetchers.yahoo_finance_fetcher import YahooFinanceFetche
 from src.domain.models.stock import Stock
 from src.infrastructure.db.db_setup import session
 
+def add_stock_arguments(parser):
+    parser.add_argument("ticker")
+    parser.add_argument("name")
+    parser.add_argument("industry")
+    parser.add_argument("sector")
+    parser.add_argument("close_price", type=float)
+    parser.add_argument("date")
+
+def create_stock_from_args(args):
+    stock_date = datetime.strptime(args.date, "%Y-%m-%d").date()  # Convert string to date
+    stock = Stock(
+        ticker=args.ticker,
+        name=args.name,
+        industry=args.industry,
+        sector=args.sector,
+        close_price=args.close_price,
+        date=stock_date
+    )
+    return stock
+
 def main():
     parser = argparse.ArgumentParser(description="Manage stock data")
     subparsers = parser.add_subparsers(dest="command")
 
     # Create
     create_parser = subparsers.add_parser("create")
-    create_parser.add_argument("ticker")
-    create_parser.add_argument("name")
-    create_parser.add_argument("industry")
-    create_parser.add_argument("sector")
-    create_parser.add_argument("close_price", type=float)
-    create_parser.add_argument("date")
+    add_stock_arguments(create_parser)
 
     # Get
     get_parser = subparsers.add_parser("get")
@@ -34,12 +48,7 @@ def main():
 
     # Update
     update_parser = subparsers.add_parser("update")
-    update_parser.add_argument("ticker")
-    update_parser.add_argument("name")
-    update_parser.add_argument("industry")
-    update_parser.add_argument("sector")
-    update_parser.add_argument("close_price", type=float)
-    update_parser.add_argument("date")
+    add_stock_arguments(update_parser)
 
     # Delete
     delete_parser = subparsers.add_parser("delete")
@@ -55,15 +64,7 @@ def main():
     stock_repo = StockRepositoryImpl(session)
 
     if args.command == "create":
-        stock_date = datetime.strptime(args.date, "%Y-%m-%d").date()  # Convert string to date
-        stock = Stock(
-            ticker=args.ticker,
-            name=args.name,
-            industry=args.industry,
-            sector=args.sector,
-            close_price=args.close_price,
-            date=stock_date
-        )
+        stock = create_stock_from_args(args)
         use_case = CreateStock(stock_repo)
         use_case.execute(stock)
         print(f"Created stock {stock.ticker}")
@@ -77,15 +78,7 @@ def main():
             print(f"Stock with ticker {args.ticker} not found.")
 
     elif args.command == "update":
-        stock_date = datetime.strptime(args.date, "%Y-%m-%d").date()  # Convert string to date
-        stock = Stock(
-            ticker=args.ticker,
-            name=args.name,
-            industry=args.industry,
-            sector=args.sector,
-            close_price=args.close_price,
-            date=stock_date
-        )
+        stock = create_stock_from_args(args)
         use_case = UpdateStock(stock_repo)
         updated_stock = use_case.execute(stock)
         if updated_stock:
