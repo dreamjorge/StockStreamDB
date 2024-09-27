@@ -20,8 +20,8 @@ def test_cli_fetch(mock_fetcher):
         }
 
         # Import the CLI main function and run it
-        from src.interfaces.cli.cli import main
-        main()
+        from src.interfaces.cli.cli import main_cli
+        main_cli()
 
         # Assertions to ensure the mock fetch is called with the correct arguments
         mock_fetcher_instance.fetch.assert_called_once_with('AAPL', '1mo')
@@ -37,9 +37,9 @@ def test_cli_fetch_invalid_period(mock_fetcher):
         mock_fetcher_instance.fetch.side_effect = ValueError("Invalid period")
         
         # Import the CLI main function and expect ValueError
-        from src.interfaces.cli.cli import main
+        from src.interfaces.cli.cli import main_cli
         with pytest.raises(ValueError, match="Invalid period"):
-            main()
+            main_cli()
 
 
 @patch('src.interfaces.cli.cli.CreateStock')
@@ -48,13 +48,13 @@ def test_cli_create(mock_stock_repo, mock_create_stock):
     # Simulate CLI arguments for the create command
     test_args = ["cli.py", "create", "AAPL", "Apple Inc.", "Technology", "Consumer Electronics", "227.34", "2024-09-26"]
     with patch.object(sys, 'argv', test_args):
-        from src.interfaces.cli.cli import main
+        from src.interfaces.cli.cli import main_cli
 
         # Mock repository and use case behavior
         mock_repo_instance = mock_stock_repo.return_value
         mock_create_stock_instance = mock_create_stock.return_value
 
-        main()
+        main_cli()
 
         # Verify that the CreateStock use case was called
         mock_create_stock_instance.execute.assert_called_once()
@@ -67,13 +67,13 @@ def test_cli_update(mock_stock_repo, mock_update_stock):
     # Simulate CLI arguments for the update command
     test_args = ["cli.py", "update", "AAPL", "Apple Corporation", "Technology", "Consumer Electronics", "230.00", "2024-10-01"]
     with patch.object(sys, 'argv', test_args):
-        from src.interfaces.cli.cli import main
+        from src.interfaces.cli.cli import main_cli
 
         # Mock repository and use case behavior
         mock_repo_instance = mock_stock_repo.return_value
         mock_update_stock_instance = mock_update_stock.return_value
 
-        main()
+        main_cli()
 
         # Verify that the UpdateStock use case was called
         mock_update_stock_instance.execute.assert_called_once()
@@ -86,13 +86,13 @@ def test_cli_delete(mock_stock_repo, mock_delete_stock):
     # Simulate CLI arguments for the delete command
     test_args = ["cli.py", "delete", "AAPL"]
     with patch.object(sys, 'argv', test_args):
-        from src.interfaces.cli.cli import main
+        from src.interfaces.cli.cli import main_cli
 
         # Mock repository and use case behavior
         mock_repo_instance = mock_stock_repo.return_value
         mock_delete_stock_instance = mock_delete_stock.return_value
 
-        main()
+        main_cli()
 
         # Verify that the DeleteStock use case was called
         mock_delete_stock_instance.execute.assert_called_once_with("AAPL")

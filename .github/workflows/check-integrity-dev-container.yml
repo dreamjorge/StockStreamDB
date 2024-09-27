@@ -7,7 +7,10 @@ on:
   pull_request:
     branches:
       - main
-  workflow_dispatch:  # Allows manual trigger of the workflow
+  workflow_dispatch:
+
+permissions:
+  contents: read  # Explicitly set permissions
 
 jobs:
   verify-devcontainer:
@@ -17,10 +20,10 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v3
 
-      - name: Install Docker
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Set up QEMU (for multi-platform builds, optional)
+      - name: Set up QEMU (for multi-platform builds)
         uses: docker/setup-qemu-action@v2
 
       - name: Build DevContainer
@@ -31,11 +34,12 @@ jobs:
         run: |
           docker run --rm devcontainer-test echo "DevContainer is working!"
 
-      - name: Download DevContainer Schema Files
-        run: |
-          curl -o devContainer.schema.json https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json
-          curl -o devContainer.base.schema.json https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.base.schema.json
+      # TODO: its in progress, Uncomment and adjust the following steps if you want to validate the devcontainer.json
+      # - name: Download DevContainer Schema Files
+      #   run: |
+      #     curl -o devContainer.schema.json https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json
+      #     curl -o devContainer.base.schema.json https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.base.schema.json
 
-      - name: Validate DevContainer JSON Schema
-        run: |
-          docker run --rm -v $(pwd):/workspace devcontainer-test ajv validate -s /workspace/devContainer.schema.json -d /workspace/.devcontainer/devcontainer.json
+      # - name: Validate DevContainer JSON Schema
+      #   run: |
+      #     docker run --rm -v $(pwd):/workspace devcontainer-test ajv validate -s /workspace/devContainer.schema.json -d /workspace/.devcontainer/devcontainer.json

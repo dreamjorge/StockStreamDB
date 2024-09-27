@@ -3,11 +3,11 @@ setup.py
 src/interfaces/__init__.py
 src/interfaces/cli/__init__.py
 src/interfaces/cli/cli.py
-src/stock_stream_db.egg-info/PKG-INFO
-src/stock_stream_db.egg-info/SOURCES.txt
-src/stock_stream_db.egg-info/dependency_links.txt
-src/stock_stream_db.egg-info/entry_points.txt
-src/stock_stream_db.egg-info/top_level.txt
+src/stockstreamdb.egg-info/PKG-INFO
+src/stockstreamdb.egg-info/SOURCES.txt
+src/stockstreamdb.egg-info/dependency_links.txt
+src/stockstreamdb.egg-info/entry_points.txt
+src/stockstreamdb.egg-info/top_level.txt
 tests/test_cli.py
 tests/test_collect_stock_data.py
 tests/test_database_manager.py
