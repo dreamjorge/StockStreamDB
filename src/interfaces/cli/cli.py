@@ -34,7 +34,7 @@ def create_stock_from_args(args):
     )
     return stock
 
-def main():
+def main_cli():
     parser = argparse.ArgumentParser(description="Manage stock data")
     subparsers = parser.add_subparsers(dest="command")
 
@@ -107,4 +107,4 @@ def main():
             print(f"No data found for {args.ticker} in the period '{args.period}'.")
 
 if __name__ == "__main__":
-    main()
+    main_cli()
