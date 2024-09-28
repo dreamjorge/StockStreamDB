@@ -11,3 +11,4 @@ pyyaml
 python-dotenv
 PyGithub
 pytest-cov
+dependency_injector
