@@ -6,11 +6,7 @@ from datetime import datetime
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
 
 from src.infrastructure.db.stock_repository_impl import StockRepositoryImpl
-from src.application.use_cases.create_stock import CreateStock
-from src.application.use_cases.get_stock import GetStock
-from src.application.use_cases.update_stock import UpdateStock
-from src.application.use_cases.delete_stock import DeleteStock
-from src.application.use_cases.collect_stock_data import CollectStockData
+from src.application.use_cases.manage_stock import ManageStockUseCase
 from src.infrastructure.fetchers.yahoo_finance_fetcher import YahooFinanceFetcher
 from src.domain.models.stock import Stock
 from src.infrastructure.db.db_setup import session
@@ -41,32 +37,28 @@ def create_stock_from_args(args):
         date=stock_date
     )
 
-def execute_create(args, stock_repo):
+def execute_create(args, stock_use_case):
     stock = create_stock_from_args(args)
-    use_case = CreateStock(stock_repo)
-    use_case.execute(stock)
+    stock_use_case.create_stock(stock)
     print(f"Created stock {stock.ticker}")
 
-def execute_update(args, stock_repo):
+def execute_update(args, stock_use_case):
     stock = create_stock_from_args(args)
-    use_case = UpdateStock(stock_repo)
-    updated_stock = use_case.execute(stock)
+    updated_stock = stock_use_case.update_stock(stock)
     if updated_stock:
         print(f"Updated stock {updated_stock.ticker}")
     else:
         print(f"Stock with ticker {args.ticker} not found for update.")
 
-def execute_get(args, stock_repo):
-    use_case = GetStock(stock_repo)
-    stock = use_case.execute(args.ticker)
+def execute_get(args, stock_use_case):
+    stock = stock_use_case.get_stock(args.ticker)  # Corrected method name
     if stock:
         print(f"Stock: {stock.name}, Industry: {stock.industry}, Sector: {stock.sector}")
     else:
         print(f"Stock with ticker {args.ticker} not found.")
 
-def execute_delete(args, stock_repo):
-    use_case = DeleteStock(stock_repo)
-    result = use_case.execute(args.ticker)
+def execute_delete(args, stock_use_case):
+    result = stock_use_case.delete_stock(args.ticker)
     if result:
         print(f"Deleted stock {args.ticker}")
     else:
@@ -74,10 +66,9 @@ def execute_delete(args, stock_repo):
 
 def execute_fetch(args):
     yahoo_finance_fetcher = YahooFinanceFetcher()
-    collect_stock_data = CollectStockData(yahoo_finance_fetcher)
-    stock = collect_stock_data.execute(args.ticker, args.period)
-    if stock:
-        print(f"Fetched stock: {stock.name}, Close Price: {stock.close_price}, Date: {stock.date}")
+    stock_data = yahoo_finance_fetcher.fetch(args.ticker, args.period)
+    if stock_data:
+        print(f"Fetched stock: {stock_data['name']}, Close Price: {stock_data['close_price']}, Date: {stock_data['date']}")
     else:
         print(f"No data found for {args.ticker} in the period '{args.period}'.")
 
@@ -109,15 +100,16 @@ def main():
     args = parser.parse_args()
 
     stock_repo = StockRepositoryImpl(session)
+    stock_use_case = ManageStockUseCase(stock_repo)
 
     if args.command == "create":
-        execute_create(args, stock_repo)
+        execute_create(args, stock_use_case)
     elif args.command == "get":
-        execute_get(args, stock_repo)
+        execute_get(args, stock_use_case)
     elif args.command == "update":
-        execute_update(args, stock_repo)
+        execute_update(args, stock_use_case)
     elif args.command == "delete":
-        execute_delete(args, stock_repo)
+        execute_delete(args, stock_use_case)
     elif args.command == "fetch":
         execute_fetch(args)
 

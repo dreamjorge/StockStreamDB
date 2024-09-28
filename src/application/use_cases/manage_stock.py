@@ -41,3 +41,6 @@ class ManageStockUseCase:
 
         self.stock_repository.delete_stock(ticker)
         return True
+
+    def get_stock(self, ticker: str):
+        return self.stock_repository.get_stock_by_ticker(ticker)
