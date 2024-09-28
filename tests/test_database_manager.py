@@ -6,6 +6,12 @@ import os
 from datetime import datetime
 from stock_data_fetcher import DatabaseManager  # Adjust import as per your script
 import logging  # Add this import
+from unittest.mock import MagicMock
+from src.infrastructure.db.db_setup import init_db  # Change to init_db
+
+@pytest.fixture
+def mock_engine():
+    return MagicMock()  # Mocking the database engine
 
 
 @pytest.fixture
@@ -104,3 +110,11 @@ def test_close(db_manager):
     db_manager.close()
     with pytest.raises(sqlite3.ProgrammingError):
         db_manager.cursor.execute("SELECT 1;")
+
+
+
+def test_db_setup_initialization():
+    try:
+        init_db()  # Ensure init_db can run without raising exceptions
+    except Exception as e:
+        pytest.fail(f"init_db() raised an exception: {e}")

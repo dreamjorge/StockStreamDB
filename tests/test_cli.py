@@ -1,99 +1,116 @@
-import sys
 import pytest
+import sys
 from unittest.mock import patch, MagicMock
-from datetime import datetime
+from src.interfaces.cli.cli import main
+from src.domain.models.stock import Stock
 
-@patch('src.interfaces.cli.cli.YahooFinanceFetcher')
-def test_cli_fetch(mock_fetcher):
-    # Simulate CLI arguments
-    test_args = ["cli.py", "fetch", "AAPL", "1mo"]
-    with patch.object(sys, 'argv', test_args):
-        # Mock the fetch method of the fetcher
-        mock_fetcher_instance = mock_fetcher.return_value
-        mock_fetcher_instance.fetch.return_value = {
+@pytest.fixture
+def mock_stock_repository():
+    """Fixture to mock StockRepositoryImpl."""
+    with patch('src.infrastructure.db.stock_repository_impl.StockRepositoryImpl') as mock_repo:
+        yield mock_repo
+
+@pytest.fixture
+def mock_manage_stock_use_case():
+    """Fixture to mock ManageStockUseCase."""
+    with patch('src.application.use_cases.manage_stock.ManageStockUseCase') as mock_use_case:
+        yield mock_use_case
+
+class TestCLI:
+    
+    def teardown_method(self):
+        """Reset sys.argv after every test."""
+        sys.argv = []
+
+    def assert_stock_object(self, stock_passed, expected):
+        """Helper function to assert stock object fields."""
+        assert stock_passed.ticker == expected['ticker']
+        assert stock_passed.name == expected['name']
+        assert stock_passed.industry == expected['industry']
+        assert stock_passed.sector == expected['sector']
+        assert stock_passed.close_price == expected['close_price']
+        assert str(stock_passed.date) == expected['date']
+
+    @patch('src.application.use_cases.manage_stock.ManageStockUseCase.create_stock')
+    def test_cli_create(self, mock_create_stock, mock_stock_repository):
+        """Test the CLI create command."""
+        sys.argv = ['cli.py', 'create', 'AAPL', 'Apple Inc.', 'Technology', 'Consumer Electronics', '150', '2023-09-01']
+        
+        main()
+
+        mock_create_stock.assert_called_once()
+
+        stock_passed = mock_create_stock.call_args[0][0]
+        
+        expected_stock = {
             'ticker': 'AAPL',
             'name': 'Apple Inc.',
             'industry': 'Technology',
             'sector': 'Consumer Electronics',
-            'close': 227.34,
-            'date': datetime(2024, 9, 26)
+            'close_price': 150.0,
+            'date': '2023-09-01'
         }
+        self.assert_stock_object(stock_passed, expected_stock)
 
-        # Import the CLI main function and run it
-        from src.interfaces.cli.cli import main_cli
-        main_cli()
+    def test_cli_missing_arguments(self, mock_stock_repository):
+        """Test missing arguments for create command."""
+        sys.argv = ['cli.py', 'create', '--ticker', 'AAPL']
 
-        # Assertions to ensure the mock fetch is called with the correct arguments
-        mock_fetcher_instance.fetch.assert_called_once_with('AAPL', '1mo')
+        with pytest.raises(SystemExit):
+            main()
 
-
-@patch('src.interfaces.cli.cli.YahooFinanceFetcher')
-def test_cli_fetch_invalid_period(mock_fetcher):
-    # Simulate CLI arguments with an invalid period
-    test_args = ["cli.py", "fetch", "AAPL", "invalid_period"]
-    with patch.object(sys, 'argv', test_args):
-        # Mock the fetch method to raise an exception for invalid period
-        mock_fetcher_instance = mock_fetcher.return_value
-        mock_fetcher_instance.fetch.side_effect = ValueError("Invalid period")
+    @patch('src.application.use_cases.manage_stock.ManageStockUseCase.update_stock')
+    def test_cli_update(self, mock_update_stock, mock_stock_repository):
+        """Test the CLI update command."""
+        sys.argv = ['cli.py', 'update', 'AAPL', 'Apple Inc.', 'Technology', 'Consumer Electronics', '160', '2023-09-02']
         
-        # Import the CLI main function and expect ValueError
-        from src.interfaces.cli.cli import main_cli
-        with pytest.raises(ValueError, match="Invalid period"):
-            main_cli()
+        main()
 
+        mock_update_stock.assert_called_once()
 
-@patch('src.interfaces.cli.cli.CreateStock')
-@patch('src.interfaces.cli.cli.StockRepositoryImpl')
-def test_cli_create(mock_stock_repo, mock_create_stock):
-    # Simulate CLI arguments for the create command
-    test_args = ["cli.py", "create", "AAPL", "Apple Inc.", "Technology", "Consumer Electronics", "227.34", "2024-09-26"]
-    with patch.object(sys, 'argv', test_args):
-        from src.interfaces.cli.cli import main_cli
+        stock_passed = mock_update_stock.call_args[0][0]
 
-        # Mock repository and use case behavior
-        mock_repo_instance = mock_stock_repo.return_value
-        mock_create_stock_instance = mock_create_stock.return_value
+        expected_stock = {
+            'ticker': 'AAPL',
+            'name': 'Apple Inc.',
+            'industry': 'Technology',
+            'sector': 'Consumer Electronics',
+            'close_price': 160.0,
+            'date': '2023-09-02'
+        }
+        self.assert_stock_object(stock_passed, expected_stock)
 
-        main_cli()
+    @patch('src.application.use_cases.manage_stock.ManageStockUseCase.get_stock')
+    def test_cli_get(self, mock_get_stock, mock_stock_repository):
+        """Test the CLI get command."""
+        sys.argv = ['cli.py', 'get', 'AAPL']
+        
+        # Mock the return value
+        mock_get_stock.return_value = Stock(ticker='AAPL', name='Apple Inc.', industry='Technology', sector='Consumer Electronics', close_price=150.0, date='2023-09-01')
 
-        # Verify that the CreateStock use case was called
-        mock_create_stock_instance.execute.assert_called_once()
-        print(f"Created stock with ticker {mock_create_stock_instance.execute.call_args[0][0].ticker}")
+        main()
 
+        # Ensure get_stock was called with 'AAPL'
+        mock_get_stock.assert_called_once_with('AAPL')
 
-@patch('src.interfaces.cli.cli.UpdateStock')
-@patch('src.interfaces.cli.cli.StockRepositoryImpl')
-def test_cli_update(mock_stock_repo, mock_update_stock):
-    # Simulate CLI arguments for the update command
-    test_args = ["cli.py", "update", "AAPL", "Apple Corporation", "Technology", "Consumer Electronics", "230.00", "2024-10-01"]
-    with patch.object(sys, 'argv', test_args):
-        from src.interfaces.cli.cli import main_cli
+    @patch('src.application.use_cases.manage_stock.ManageStockUseCase.delete_stock')
+    def test_cli_delete(self, mock_delete_stock, mock_stock_repository):
+        """Test the CLI delete command."""
+        sys.argv = ['cli.py', 'delete', 'AAPL']
+        
+        main()
 
-        # Mock repository and use case behavior
-        mock_repo_instance = mock_stock_repo.return_value
-        mock_update_stock_instance = mock_update_stock.return_value
+        # Ensure delete_stock was called with 'AAPL'
+        mock_delete_stock.assert_called_once_with('AAPL')
 
-        main_cli()
+    @patch('src.application.use_cases.manage_stock.ManageStockUseCase.delete_stock')
+    def test_cli_delete_not_found(self, mock_delete_stock, mock_stock_repository):
+        """Test the CLI delete command when stock is not found."""
+        sys.argv = ['cli.py', 'delete', 'AAPL']
+        
+        # Simulate stock not found (delete_stock returns False)
+        mock_delete_stock.return_value = False
+        
+        main()
 
-        # Verify that the UpdateStock use case was called
-        mock_update_stock_instance.execute.assert_called_once()
-        print(f"Updated stock with ticker {mock_update_stock_instance.execute.call_args[0][0].ticker}")
-
-
-@patch('src.interfaces.cli.cli.DeleteStock')
-@patch('src.interfaces.cli.cli.StockRepositoryImpl')
-def test_cli_delete(mock_stock_repo, mock_delete_stock):
-    # Simulate CLI arguments for the delete command
-    test_args = ["cli.py", "delete", "AAPL"]
-    with patch.object(sys, 'argv', test_args):
-        from src.interfaces.cli.cli import main_cli
-
-        # Mock repository and use case behavior
-        mock_repo_instance = mock_stock_repo.return_value
-        mock_delete_stock_instance = mock_delete_stock.return_value
-
-        main_cli()
-
-        # Verify that the DeleteStock use case was called
-        mock_delete_stock_instance.execute.assert_called_once_with("AAPL")
-        print(f"Deleted stock with ticker {mock_delete_stock_instance.execute.call_args[0][0]}")
+        mock_delete_stock.assert_called_once_with('AAPL')

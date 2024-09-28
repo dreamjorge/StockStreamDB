@@ -24,16 +24,17 @@ RUN npm install -g ajv-cli
 # Configure Git to treat the project directory as a safe directory
 RUN git config --global --add safe.directory /workspaces/StockStreamDB
 
-# Install Python dependencies
-RUN pip install --upgrade pip setuptools
-RUN pip install .
+# Copy the rest of the project files into the container
+COPY . .
 
+# Explicitly set PYTHONPATH without referencing the previous value
+ENV PYTHONPATH="/workspaces/StockStreamDB/src"
+
+# Install your package using setup.py (or pyproject.toml)
+RUN pip install .
 
 # Create a local .czrc configuration in the project directory
 RUN echo '{ "path": "/usr/lib/node_modules/cz-conventional-changelog" }' > /workspaces/StockStreamDB/.czrc
 
-# Copy the rest of the project files into the container
-COPY . .
-
-# Default command to run the CLI (adjust this as per your project structure)
-CMD ["python", "src/interfaces/cli/cli.py", "--help"]
+# Set the default command to run the CLI tool
+CMD ["stockstreamdb", "--help"]

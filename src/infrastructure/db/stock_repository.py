@@ -2,6 +2,7 @@ import time
 import yfinance as yf
 import requests
 from requests.exceptions import RequestException
+from datetime import datetime
 
 class StockRepository:
     def get_stock_data(self, ticker: str, period: str = '1mo', retries: int = 3):
@@ -15,16 +16,24 @@ class StockRepository:
                 if stock_data.empty:
                     return None
 
-                # Return the data if available
-                return {'close': stock_data['Close'].iloc[-1], 'date': str(stock_data.index[-1])}
+                # Format the date to 'YYYY-MM-DD'
+                close_price = stock_data['Close'].iloc[-1]
+                date = stock_data.index[-1].strftime('%Y-%m-%d')
+
+                # Return the close price and date
+                return {'close': close_price, 'date': date}
             
             except RequestException as e:
                 print(f"Connection error while attempting to fetch data for {ticker}. Retrying ({attempt+1}/{retries})...")
                 attempt += 1
                 time.sleep(2)  # Wait for 2 seconds before retrying
 
+            except ValueError as e:
+                print(f"Data parsing error for {ticker}: {e}")
+                return None
+
             except Exception as e:
-                print(f"Error processing data for {ticker}: {e}")
+                print(f"Unexpected error for {ticker}: {e}")
                 return None
 
         print(f"Connection error: Failed to retrieve data for {ticker} after {retries} attempts.")

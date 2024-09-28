@@ -1,42 +1,46 @@
+# src/application/use_cases/manage_stock.py
 from src.domain.models.stock import Stock
-from src.domain.repositories.stock_repository import StockRepository
+from src.infrastructure.db.stock_repository import StockRepository
 
-class CreateStock:
+class ManageStockUseCase:
     def __init__(self, stock_repository: StockRepository):
         self.stock_repository = stock_repository
 
-    def execute(self, stock: Stock) -> Stock:
-        return self.stock_repository.create_stock(stock)
+    def create_stock(self, ticker: str, name: str, industry: str, sector: str, close_price: float, date: str) -> Stock:
+        # Create a new stock
+        stock = Stock(ticker=ticker, name=name, industry=industry, sector=sector, close_price=close_price, date=date)
+        self.stock_repository.create_stock(stock)
+        return stock
 
-class GetStock:
-    def __init__(self, stock_repository: StockRepository):
-        self.stock_repository = stock_repository
+    def update_stock(self, ticker: str, name: str = None, industry: str = None, sector: str = None, close_price: float = None, date: str = None) -> Stock:
+        # Find the existing stock by ticker
+        stock = self.stock_repository.get_stock_by_ticker(ticker)
+        if not stock:
+            raise ValueError(f"Stock with ticker {ticker} not found")
 
-    def execute(self, ticker: str) -> Stock:
-        return self.stock_repository.get(ticker)
+        # Update stock properties
+        if name:
+            stock.name = name
+        if industry:
+            stock.industry = industry
+        if sector:
+            stock.sector = sector
+        if close_price:
+            stock.close_price = close_price
+        if date:
+            stock.date = date
 
-class UpdateStock:
-    def __init__(self, stock_repository):
-        self.stock_repository = stock_repository
+        self.stock_repository.update_stock(stock)
+        return stock
 
-    def execute(self, stock):
-        # Fetch the existing stock record from the repository
-        existing_stock = self.stock_repository.get(stock.ticker)
+    def delete_stock(self, ticker: str) -> bool:
+        # Delete stock by ticker
+        stock = self.stock_repository.get_stock_by_ticker(ticker)
+        if not stock:
+            return False
 
-        # Update fields dynamically
-        for attr, value in stock.__dict__.items():
-            if hasattr(existing_stock, attr):
-                setattr(existing_stock, attr, value)
+        self.stock_repository.delete_stock(ticker)
+        return True
 
-        # Save updated stock back to the repository
-        self.stock_repository.update(existing_stock)
-
-        return existing_stock
-
-
-class DeleteStock:
-    def __init__(self, stock_repository: StockRepository):
-        self.stock_repository = stock_repository
-
-    def execute(self, ticker: str) -> bool:
-        return self.stock_repository.delete_stock(ticker)
+    def get_stock(self, ticker: str):
+        return self.stock_repository.get_stock_by_ticker(ticker)

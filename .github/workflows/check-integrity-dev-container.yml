@@ -3,10 +3,10 @@ name: Verify DevContainer Integrity
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     branches:
-      - main
+      - master
   workflow_dispatch:
 
 permissions:
@@ -14,27 +14,37 @@ permissions:
 
 jobs:
   verify-devcontainer:
+    name: Verify DevContainer
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the repository
       - name: Checkout the repository
         uses: actions/checkout@v3
 
+      # Step 2: Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
+      # Step 3: Optionally set up QEMU for multi-platform builds (skip if not needed)
       - name: Set up QEMU (for multi-platform builds)
         uses: docker/setup-qemu-action@v2
+        if: github.event_name == 'push' # Run only on push events
 
+      # Step 4: Build the DevContainer image
       - name: Build DevContainer
         run: |
+          echo "Building the DevContainer..."
           docker build -f .devcontainer/Dockerfile -t devcontainer-test .
 
+      # Step 5: Verify DevContainer by running a simple command
       - name: Verify DevContainer
         run: |
+          echo "Running a test inside the DevContainer..."
           docker run --rm devcontainer-test echo "DevContainer is working!"
 
-      # TODO: its in progress, Uncomment and adjust the following steps if you want to validate the devcontainer.json
+      # Optional: Validate devcontainer.json against DevContainer schema
+      # Uncomment and adjust the following steps if needed
       # - name: Download DevContainer Schema Files
       #   run: |
       #     curl -o devContainer.schema.json https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json
@@ -42,4 +52,5 @@ jobs:
 
       # - name: Validate DevContainer JSON Schema
       #   run: |
+      #     echo "Validating devcontainer.json schema..."
       #     docker run --rm -v $(pwd):/workspace devcontainer-test ajv validate -s /workspace/devContainer.schema.json -d /workspace/.devcontainer/devcontainer.json
