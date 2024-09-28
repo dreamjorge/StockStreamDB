@@ -1,0 +1,12 @@
+sqlalchemy
+alembic
+requests
+black
+pytest
+yfinance
+pandas
+finnhub-python
+pyyaml
+python-dotenv
+PyGithub
+pytest-cov
