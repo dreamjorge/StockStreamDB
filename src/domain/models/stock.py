@@ -10,7 +10,6 @@ class Stock(Base):
     sector = Column(String)
     close_price = Column(Float)
     date = Column(DateTime)
-    
     def __init__(self, ticker, name, industry, sector, close_price, date):
         self.ticker = ticker
         self.name = name
