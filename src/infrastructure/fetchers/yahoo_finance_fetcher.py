@@ -18,3 +18,15 @@ class YahooFinanceFetcher(StockFetcher):
             'close': history['Close'].iloc[-1],
             'date': history.index[-1]
         }
+
+    def fetch(self, ticker: str, period: str = '1mo'):
+        """
+        Fetch stock data from Yahoo Finance for a given ticker and period.
+
+        :param ticker: Stock ticker (e.g., 'AAPL')
+        :param period: Time period (e.g., '1d', '1mo', '6mo', '1y')
+        :return: DataFrame containing stock data
+        """
+        stock = yf.Ticker(ticker)
+        stock_data = stock.history(period=period)
+        return stock_data

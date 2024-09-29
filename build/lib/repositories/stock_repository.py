@@ -22,4 +22,15 @@ class StockRepository(ABC):
     @abstractmethod
     def save(self, stock):
         pass
+    
+    @abstractmethod
+    def get_stock_by_ticker(self, ticker: str, granularity: Granularity = Granularity.DAILY) -> Stock:
+        """
+        Fetch stock data by ticker with a specified granularity (daily, weekly, etc.).
+        """
+        pass
+    
+    @abstractmethod
+    def get_stock_data(self, ticker, start_date, end_date, granularity=Granularity.DAILY):
+        pass
 

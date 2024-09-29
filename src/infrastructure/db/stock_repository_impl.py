@@ -21,9 +21,23 @@ class StockRepositoryImpl(StockRepository):
         pass
 
     def delete_stock(self, ticker):
-        stock = self.session.query(Stock).filter_by(ticker=ticker).first()
+        stock = self.session.query(Stock).filter_by(ticker=ticker).first()  # Corrected: self.session
         if stock:
             self.session.delete(stock)
             self.session.commit()
             return True
         return False
+    
+    def get(self, ticker: str) -> Stock:
+        # Fetch stock by ticker
+        return self.session.query(Stock).filter(Stock.ticker == ticker).first()
+
+    def save(self, stock: Stock):
+            self.session.add(stock)
+            self.session.commit()
+            
+    def update(self, stock: Stock) -> Stock:
+        # Use session.merge() to update the stock record
+        self.session.merge(stock)
+        self.session.commit()
+        return stock

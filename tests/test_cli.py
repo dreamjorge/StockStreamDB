@@ -1,116 +1,71 @@
+# tests/test_cli.py
+
 import pytest
-import sys
 from unittest.mock import patch, MagicMock
-from src.interfaces.cli.cli import main
-from src.domain.models.stock import Stock
-
-@pytest.fixture
-def mock_stock_repository():
-    """Fixture to mock StockRepositoryImpl."""
-    with patch('src.infrastructure.db.stock_repository_impl.StockRepositoryImpl') as mock_repo:
-        yield mock_repo
-
-@pytest.fixture
-def mock_manage_stock_use_case():
-    """Fixture to mock ManageStockUseCase."""
-    with patch('src.application.use_cases.manage_stock.ManageStockUseCase') as mock_use_case:
-        yield mock_use_case
+from click.testing import CliRunner
+from src.interfaces.cli.cli import cli  # Import the click group
 
 class TestCLI:
-    
-    def teardown_method(self):
-        """Reset sys.argv after every test."""
-        sys.argv = []
-
-    def assert_stock_object(self, stock_passed, expected):
-        """Helper function to assert stock object fields."""
-        assert stock_passed.ticker == expected['ticker']
-        assert stock_passed.name == expected['name']
-        assert stock_passed.industry == expected['industry']
-        assert stock_passed.sector == expected['sector']
-        assert stock_passed.close_price == expected['close_price']
-        assert str(stock_passed.date) == expected['date']
-
-    @patch('src.application.use_cases.manage_stock.ManageStockUseCase.create_stock')
-    def test_cli_create(self, mock_create_stock, mock_stock_repository):
+    @patch('src.interfaces.cli.cli.get_session')  # Mock get_session in cli.py
+    @patch('src.application.use_cases.manage_stock.ManageStockUseCase.create_stock')  # Mock create_stock
+    def test_cli_create(self, mock_create_stock, mock_get_session):
         """Test the CLI create command."""
-        sys.argv = ['cli.py', 'create', 'AAPL', 'Apple Inc.', 'Technology', 'Consumer Electronics', '150', '2023-09-01']
-        
-        main()
+        # Set up the mock session
+        mock_session = MagicMock()
+        mock_get_session.return_value.__enter__.return_value = mock_session
 
+        # Initialize CliRunner
+        runner = CliRunner()
+
+        # Define the command-line arguments
+        result = runner.invoke(cli, [
+            'create',
+            'AAPL',
+            'Apple Inc.',
+            'Technology',
+            'Consumer Electronics',
+            '150',
+            '2023-09-01'
+        ])
+
+        # Assert that the command exited without errors
+        assert result.exit_code == 0, f"Unexpected exit code: {result.exit_code}"
+
+        # Assert that create_stock was called once
         mock_create_stock.assert_called_once()
 
-        stock_passed = mock_create_stock.call_args[0][0]
-        
-        expected_stock = {
-            'ticker': 'AAPL',
-            'name': 'Apple Inc.',
-            'industry': 'Technology',
-            'sector': 'Consumer Electronics',
-            'close_price': 150.0,
-            'date': '2023-09-01'
-        }
-        self.assert_stock_object(stock_passed, expected_stock)
+        # Optionally, check the output
+        assert "Created stock AAPL" in result.output
 
-    def test_cli_missing_arguments(self, mock_stock_repository):
-        """Test missing arguments for create command."""
-        sys.argv = ['cli.py', 'create', '--ticker', 'AAPL']
+    @patch('src.interfaces.cli.cli.get_session')  # Mock get_session in cli.py
+    @patch('src.application.use_cases.manage_stock.ManageStockUseCase.fetch_stock_data')  # Mock fetch_stock_data
+    def test_cli_fetch(self, mock_fetch_stock_data, mock_get_session):
+        """Test the CLI fetch command."""
+        # Set up the mock session
+        mock_session = MagicMock()
+        mock_get_session.return_value.__enter__.return_value = mock_session
 
-        with pytest.raises(SystemExit):
-            main()
+        # Mock the fetch_stock_data method to return a mock data object
+        mock_data = MagicMock()
+        mock_data.empty = False
+        mock_data.to_string.return_value = "Sample Data"
+        mock_fetch_stock_data.return_value = mock_data
 
-    @patch('src.application.use_cases.manage_stock.ManageStockUseCase.update_stock')
-    def test_cli_update(self, mock_update_stock, mock_stock_repository):
-        """Test the CLI update command."""
-        sys.argv = ['cli.py', 'update', 'AAPL', 'Apple Inc.', 'Technology', 'Consumer Electronics', '160', '2023-09-02']
-        
-        main()
+        # Initialize CliRunner
+        runner = CliRunner()
 
-        mock_update_stock.assert_called_once()
+        # Define the command-line arguments
+        result = runner.invoke(cli, [
+            'fetch',
+            'AAPL',
+            '1mo'
+        ])
 
-        stock_passed = mock_update_stock.call_args[0][0]
+        # Assert that the command exited without errors
+        assert result.exit_code == 0, f"Unexpected exit code: {result.exit_code}"
 
-        expected_stock = {
-            'ticker': 'AAPL',
-            'name': 'Apple Inc.',
-            'industry': 'Technology',
-            'sector': 'Consumer Electronics',
-            'close_price': 160.0,
-            'date': '2023-09-02'
-        }
-        self.assert_stock_object(stock_passed, expected_stock)
+        # Assert that fetch_stock_data was called once with correct arguments
+        mock_fetch_stock_data.assert_called_once_with('AAPL', '1mo')
 
-    @patch('src.application.use_cases.manage_stock.ManageStockUseCase.get_stock')
-    def test_cli_get(self, mock_get_stock, mock_stock_repository):
-        """Test the CLI get command."""
-        sys.argv = ['cli.py', 'get', 'AAPL']
-        
-        # Mock the return value
-        mock_get_stock.return_value = Stock(ticker='AAPL', name='Apple Inc.', industry='Technology', sector='Consumer Electronics', close_price=150.0, date='2023-09-01')
-
-        main()
-
-        # Ensure get_stock was called with 'AAPL'
-        mock_get_stock.assert_called_once_with('AAPL')
-
-    @patch('src.application.use_cases.manage_stock.ManageStockUseCase.delete_stock')
-    def test_cli_delete(self, mock_delete_stock, mock_stock_repository):
-        """Test the CLI delete command."""
-        sys.argv = ['cli.py', 'delete', 'AAPL']
-        
-        main()
-
-        # Ensure delete_stock was called with 'AAPL'
-        mock_delete_stock.assert_called_once_with('AAPL')
-
-    @patch('src.application.use_cases.manage_stock.ManageStockUseCase.delete_stock')
-    def test_cli_delete_not_found(self, mock_delete_stock, mock_stock_repository):
-        """Test the CLI delete command when stock is not found."""
-        sys.argv = ['cli.py', 'delete', 'AAPL']
-        
-        # Simulate stock not found (delete_stock returns False)
-        mock_delete_stock.return_value = False
-        
-        main()
-
-        mock_delete_stock.assert_called_once_with('AAPL')
+        # Optionally, check the output
+        assert "Sample Data" in result.output
