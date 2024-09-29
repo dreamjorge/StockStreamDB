@@ -23,3 +23,4 @@ class StockRepository(ABC):
     def save(self, stock):
         pass
 
+
