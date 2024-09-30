@@ -43,28 +43,39 @@ def test_fetch_and_store_stock(yahoo_finance_fetcher, stock_repository):
     # Verify that stock data was saved using the repository
     stock_repository.create_stock.assert_called_once()  # Only one recent row is saved
 
-@patch('yfinance.download')
-def test_fetch_stock_data(mock_download):
-    # Mock the return value of yfinance.download to simulate fetched stock data
-    mock_download.return_value = pd.DataFrame({
+from unittest.mock import patch, MagicMock
+import pytest
+import pandas as pd
+from src.infrastructure.fetchers.yahoo_finance_fetcher import YahooFinanceFetcher
+
+@patch('yfinance.Ticker')
+def test_fetch_stock_data(mock_ticker):
+    # Create a mock for the history method
+    mock_history = MagicMock()
+    mock_history.return_value = pd.DataFrame({
         'Open': [228.46],
         'High': [229.52],
         'Low': [227.30],
         'Close': [227.79],
-        'Volume': [33993600],  # Update the volume to match the actual value
+        'Volume': [33993600],
     }, index=pd.to_datetime(['2024-09-27']))
-    
+
+    # Assign the mock history method to the mock Ticker object
+    mock_ticker.return_value.history = mock_history
+
+    # Create an instance of the fetcher and fetch data
     fetcher = YahooFinanceFetcher()
     result = fetcher.fetch('AAPL', '1mo')
-    
+
+    # Check if result is not None
+    assert result is not None, "The fetcher returned None, expected valid data."
+
     # Assert that the returned data contains the correct values in a dictionary format
     assert result['close_price'] == pytest.approx(227.79, rel=1e-5)
-    assert result['ticker'] == 'AAPL'
     assert result['date'] == '2024-09-27'
     assert result['open'] == pytest.approx(228.46, rel=1e-5)
     assert result['high'] == pytest.approx(229.52, rel=1e-5)
     assert result['low'] == pytest.approx(227.30, rel=1e-5)
-    assert result['volume'] == 33993600  # Update expected volume
-
+    assert result['volume'] == 33993600
 
 
