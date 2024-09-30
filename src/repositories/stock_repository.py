@@ -1,5 +1,9 @@
+# src/repositories/stock_repository.py
 from abc import ABC, abstractmethod
 from src.domain.models.stock import Stock
+from datetime import datetime
+from src.interfaces.common.enums import Granularity
+from typing import List
 
 class StockRepository(ABC):
 
@@ -23,4 +27,7 @@ class StockRepository(ABC):
     def save(self, stock):
         pass
 
-
+    @abstractmethod
+    def get_stock_data(self, ticker: str, start_date: datetime, end_date: datetime, granularity: Granularity)-> List[Stock]:
+        """Retrieve stock data for a given period with a specified granularity."""
+        pass

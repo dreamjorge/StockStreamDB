@@ -5,6 +5,7 @@ from unittest.mock import patch, MagicMock
 from click.testing import CliRunner
 from src.interfaces.cli.cli import cli  # Import the click group
 
+
 class TestCLI:
     @patch('src.interfaces.cli.cli.get_session')  # Mock get_session in cli.py
     @patch('src.application.use_cases.manage_stock.ManageStockUseCase.create_stock')  # Mock create_stock
@@ -69,3 +70,62 @@ class TestCLI:
 
         # Optionally, check the output
         assert "Sample Data" in result.output
+
+    @patch('src.interfaces.cli.cli.get_session')  # Mock get_session in cli.py
+    @patch('src.application.use_cases.manage_stock.ManageStockUseCase.create_stock')
+    def test_cli_create_with_invalid_date(self, mock_create_stock, mock_get_session):
+        """Test the CLI create command with invalid date."""
+        mock_session = MagicMock()
+        mock_get_session.return_value.__enter__.return_value = mock_session
+
+        runner = CliRunner()
+
+        result = runner.invoke(cli, [
+            'create',
+            'AAPL',
+            'Apple Inc.',
+            'Technology',
+            'Consumer Electronics',
+            '150',
+            'invalid-date'  # Invalid date format
+        ])
+
+        # Assert that the command exited with an error
+        assert result.exit_code != 0
+        assert "Error: Invalid value for 'DATE'" in result.output
+        mock_create_stock.assert_not_called()  # Ensure that stock creation was not called
+
+    @patch('src.interfaces.cli.cli.get_session')  # Mock get_session in cli.py
+    @patch('src.application.use_cases.manage_stock.ManageStockUseCase.delete_stock')  # Mock delete_stock
+    def test_cli_delete(self, mock_delete_stock, mock_get_session):
+        """Test the CLI delete command."""
+        # Simulate successful deletion
+        mock_delete_stock.return_value = True
+        mock_session = MagicMock()
+        mock_get_session.return_value.__enter__.return_value = mock_session
+
+        runner = CliRunner()
+        result = runner.invoke(cli, ['delete', 'AAPL'])
+
+        # Assert that the command exited successfully (exit code 0)
+        assert result.exit_code == 0, f"Unexpected exit code: {result.exit_code}"
+        mock_delete_stock.assert_called_once_with('AAPL')
+        assert "Deleted stock AAPL" in result.output
+
+    @patch('src.interfaces.cli.cli.get_session')  # Mock get_session in cli.py
+    @patch('src.application.use_cases.manage_stock.ManageStockUseCase.delete_stock')  # Mock delete_stock
+    def test_cli_delete_stock_not_found(self, mock_delete_stock, mock_get_session):
+        """Test delete command when the stock is not found."""
+        # Simulate stock not found (delete_stock returns False)
+        mock_delete_stock.return_value = False
+        mock_session = MagicMock()
+        mock_get_session.return_value.__enter__.return_value = mock_session
+
+        runner = CliRunner()
+        result = runner.invoke(cli, ['delete', 'AAPL'])
+
+        # Assert that the command exited with an error (exit code 1 due to ClickException)
+        assert result.exit_code == 1, f"Unexpected exit code: {result.exit_code}"
+
+        # Assert that the error message is correct
+        assert "Error: Stock with ticker AAPL not found." in result.output
