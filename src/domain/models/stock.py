@@ -1,9 +1,11 @@
-from sqlalchemy import Column, String, Float, DateTime
+from sqlalchemy import Column, String, Float, DateTime, Integer  # Use DateTime, not DateTim
 from src.infrastructure.db.db_setup import Base
-from sqlalchemy.ext.declarative import declarative_base
+
 class Stock(Base):
     __tablename__ = 'stocks'
+    __table_args__ = {'extend_existing': True}
 
+    id = Column(Integer, primary_key=True)
     ticker = Column(String, primary_key=True)
     name = Column(String)
     industry = Column(String)
@@ -16,7 +18,8 @@ class Stock(Base):
     close = Column(Float, nullable=True)
     volume = Column(Float, nullable=True)
 
-    def __init__(self, ticker, name, industry, sector, close_price, date, open=None, high=None, low=None, close=None, volume=None):
+    def __init__(self, ticker, name, industry, sector, close_price, date, open=None, high=None, low=None, close=None, volume=None, id=None):
+        self.id = id
         self.ticker = ticker
         self.name = name
         self.industry = industry

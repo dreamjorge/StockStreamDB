@@ -11,7 +11,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -25,15 +25,16 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install pytest-xdist  # Install pytest-xdist for parallel testing
 
       - name: Run tests with coverage
         run: |
-          pytest --cov=src tests/
+          pytest -n auto --cov=src --cov-fail-under=80 tests/
           coverage html  # Generate an HTML report
-          coverage xml   # Generate an XML report for external tools like SonarCloud
+          coverage xml   # Generate an XML report for external tools
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v3
         with:
           name: coverage-report
-          path: htmlcov/  # Upload the HTML coverage report to GitHub Actions artifacts
+          path: htmlcov/  # Upload the HTML coverage report

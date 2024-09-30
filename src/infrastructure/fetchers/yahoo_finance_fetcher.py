@@ -1,32 +1,24 @@
+# src/infrastructure/fetchers/yahoo_finance_fetcher.py
+
 import yfinance as yf
-from src.domain.stock_fetcher import StockFetcher
+from src.repositories.stock_fetcher import StockFetcher
 
 class YahooFinanceFetcher(StockFetcher):
-    def get_stock_data(self, ticker: str, period: str) -> dict:
-        stock = yf.Ticker(ticker)
-        history = stock.history(period=period)
 
-        if history.empty:
+    def fetch(self, ticker: str, period: str):
+        # Use yfinance to fetch data
+        stock_data = yf.Ticker(ticker).history(period=period)
+        
+        if stock_data.empty:
             return None
         
-        # Extract required fields from the history
+        # Return the most recent stock data as a dictionary
         return {
             'ticker': ticker,
-            'name': stock.info.get('longName'),
-            'industry': stock.info.get('industry'),
-            'sector': stock.info.get('sector'),
-            'close': history['Close'].iloc[-1],
-            'date': history.index[-1]
+            'close_price': stock_data['Close'].iloc[-1],
+            'date': stock_data.index[-1].strftime('%Y-%m-%d'),
+            'open': stock_data['Open'].iloc[-1],
+            'high': stock_data['High'].iloc[-1],
+            'low': stock_data['Low'].iloc[-1],
+            'volume': stock_data['Volume'].iloc[-1],
         }
-
-    def fetch(self, ticker: str, period: str = '1mo'):
-        """
-        Fetch stock data from Yahoo Finance for a given ticker and period.
-
-        :param ticker: Stock ticker (e.g., 'AAPL')
-        :param period: Time period (e.g., '1d', '1mo', '6mo', '1y')
-        :return: DataFrame containing stock data
-        """
-        stock = yf.Ticker(ticker)
-        stock_data = stock.history(period=period)
-        return stock_data

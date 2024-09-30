@@ -1,29 +1,25 @@
-from src.infrastructure.fetchers.yahoo_finance_fetcher import YahooFinanceFetcher
-from src.infrastructure.db.stock_repository_impl import StockRepositoryImpl
-from src.domain.models.stock import Stock
+# src/application/use_cases/fetch_and_store_stock_use_case.py
+
+from domain.models.stock import Stock
 
 class FetchAndStoreStockUseCase:
     def __init__(self, yahoo_finance_fetcher, stock_repository):
         self.yahoo_finance_fetcher = yahoo_finance_fetcher
         self.stock_repository = stock_repository
 
-    def execute(self, ticker: str, period: str = '1mo'):
-        # Fetch data from Yahoo Finance
-        stock_data = self.yahoo_finance_fetcher.fetch(ticker, period)
-        
-        # Loop through each row and save the stock data
-        for index, row in stock_data.iterrows():
+    def execute(self, ticker, period):
+        data = self.yahoo_finance_fetcher.fetch(ticker, period)
+        if data:  # If data is not None or empty
             stock = Stock(
-                ticker=ticker,
-                name="N/A",  # You can add logic to retrieve the stock name if needed
-                industry="N/A",  # You can add logic to retrieve the industry if needed
-                sector="N/A",  # You can add logic to retrieve the sector if needed
-                close_price=row['Close'],
-                date=index,
-                open=row['Open'],
-                high=row['High'],
-                low=row['Low'],
-                close=row['Close'],
-                volume=row['Volume']
+                ticker=data['ticker'],
+                name="Unknown",  # Update according to your needs
+                industry="Unknown",
+                sector="Unknown",
+                close_price=data['close_price'],
+                date=data['date'],
+                open=data['open'],
+                high=data['high'],
+                low=data['low'],
+                volume=data['volume']
             )
-            self.stock_repository.save(stock)
+            self.stock_repository.create_stock(stock)

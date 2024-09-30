@@ -16,25 +16,37 @@ def stock_repo(db_session):
 def test_create_stock(stock_repo, db_session):
     # Mock stock object
     stock = Stock(ticker="AAPL", name="Apple", industry="Technology", sector="Consumer Electronics", close_price=150.0, date="2023-01-01")
-    
+
     # Call create_stock
     stock_repo.create_stock(stock)
-    
-    # Verify that the session's add and commit methods were called
+
+    # Ensure session methods are called correctly
     db_session.add.assert_called_once_with(stock)
     db_session.commit.assert_called_once()
 
+
 def test_get_stock(stock_repo, db_session):
-    # Mock stock object
     mock_stock = Stock(ticker="AAPL", name="Apple", industry="Technology", sector="Consumer Electronics", close_price=145.0, date="2023-01-01")
     
-    # Configure the session query to return the mock stock
-    db_session.query().filter().first.return_value = mock_stock
+    # Set the mock query result to return the stock object
+    db_session.query().filter_by().first.return_value = mock_stock
     
-    # Call get and verify result
+    # Call the repository to get the stock
     stock = stock_repo.get("AAPL")
+    
+    # Assert that the returned stock matches the mock stock
     assert stock == mock_stock
-    db_session.query().filter().first.assert_called_once()
+
+
+def test_get_non_existent_stock(stock_repo, db_session):
+    # Set the mock query result to return None, simulating a non-existent stock
+    db_session.query().filter_by().first.return_value = None
+    
+    # Call the repository to get a non-existent stock
+    stock = stock_repo.get("NON_EXISTENT")
+    
+    # Assert that the result is None, as the stock does not exist
+    assert stock is None
 
 def test_update_stock(stock_repo, db_session):
     # Mock stock object
@@ -63,8 +75,15 @@ def test_delete_stock(stock_repo, db_session):
     db_session.delete.assert_called_once_with(mock_stock)
     db_session.commit.assert_called_once()
 
+def test_delete_non_existent_stock(stock_repo, db_session):
+    # Configure the session query to return None for non-existent stock
+    mock_query = db_session.query.return_value
+    mock_query.filter_by.return_value.first.return_value = None  # No stock found
 
+    # Call delete_stock
+    result = stock_repo.delete_stock("NON_EXISTENT")
 
-
-
-
+    # Verify that delete was not called since the stock doesn't exist
+    assert result is False
+    db_session.delete.assert_not_called()
+    db_session.commit.assert_not_called()
