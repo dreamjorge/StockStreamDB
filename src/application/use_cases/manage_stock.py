@@ -13,22 +13,23 @@ class ManageStockUseCase:
         return stock  # Return the created stock object
 
     def fetch_stock_data(self, ticker, period):
-        # Implementation to fetch stock data
-        pass
+        if self.stock_fetcher:  # Check if a stock fetcher is available
+            return self.stock_fetcher.fetch(ticker, period)  # Fetch the stock data
+        return None
     
     def delete_stock(self, ticker):
-        stock = self.stock_repository.get_stock_by_ticker(ticker)
+        stock = self.stock_repository.get_by_ticker(ticker)
         if stock:
-            self.stock_repository.delete(ticker)  # Ensure this calls delete
+            self.stock_repository.delete_stock(ticker)  # Ensure this calls delete
             return True
         return False
 
     def update_stock(self, ticker, close_price=None, name=None, industry=None, sector=None):
-        stock = self.stock_repository.get_stock_by_ticker(ticker)
+        stock = self.stock_repository.get_by_ticker(ticker)  # Use get_by_ticker if this is the correct method
         if not stock:
-            raise ValueError(f"Stock with ticker {ticker} not found")
-        
-        # Update fields if provided
+            raise ValueError(f"Stock with ticker {ticker} not found")  # This should raise the ValueError
+
+        # Proceed to update fields if provided
         if close_price:
             stock.close_price = close_price
         if name:
@@ -37,9 +38,8 @@ class ManageStockUseCase:
             stock.industry = industry
         if sector:
             stock.sector = sector
-        
+
         self.stock_repository.update(stock)
         return stock
-    
-    def get_stock(self, ticker):
-        return self.stock_repository.get_stock_by_ticker(ticker)
+
+

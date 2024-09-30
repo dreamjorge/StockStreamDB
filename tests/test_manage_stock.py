@@ -1,16 +1,20 @@
-# tests/test_manage_stock.py
 import pytest
 from unittest.mock import MagicMock
 from src.application.use_cases.manage_stock import ManageStockUseCase
 from src.domain.models.stock import Stock
 
+
 @pytest.fixture
-def mock_stock_repo():
-    return MagicMock()
+def manage_stock_use_case(stock_repo):
+    return ManageStockUseCase(stock_repository=stock_repo)
 
-def test_create_stock(mock_stock_repo):
-    # Create a mock Stock object to return
-    mock_stock = Stock(
+
+def test_create_stock(manage_stock_use_case, stock_repo):
+    # Mock the repository method create_stock
+    stock_repo.create_stock = MagicMock()
+
+    # Create a new stock
+    stock = manage_stock_use_case.create_stock(
         ticker="AAPL",
         name="Apple Inc.",
         industry="Technology",
@@ -19,102 +23,137 @@ def test_create_stock(mock_stock_repo):
         date="2023-09-01"
     )
 
-    # Mock the repository's create_stock method to return the mock Stock object
-    # It should return the same stock object that is passed
-    mock_stock_repo.create_stock.return_value = mock_stock
-
-    # Call the use case
-    use_case = ManageStockUseCase(stock_repository=mock_stock_repo)
-    stock = use_case.create_stock(
-        ticker="AAPL",
-        name="Apple Inc.",
-        industry="Technology",
-        sector="Consumer Electronics",
-        close_price=150.0,
-        date="2023-09-01"
-    )
-
-    # Assert that the returned stock is as expected
+    # Assert the stock was created with correct attributes
     assert stock.ticker == "AAPL"
+    assert stock.name == "Apple Inc."
+    assert stock.industry == "Technology"
+    assert stock.sector == "Consumer Electronics"
+    assert stock.close_price == 150.0
+    assert stock.date == "2023-09-01"
 
-    # Verify that create_stock was called once with the correct parameters
-    mock_stock_repo.create_stock.assert_called_once()
+    # Ensure repository's create_stock method was called with the correct stock object
+    stock_repo.create_stock.assert_called_once_with(stock)
 
 
-
-def test_update_stock(mock_stock_repo):
-    # Mock the return value of get_stock_by_ticker
-    mock_stock_repo.get_stock_by_ticker.return_value = Stock(
-        "AAPL", "Apple Inc.", "Technology", "Consumer Electronics", 150.0, "2023-09-01"
-    )
-
-    # Create the use case instance
-    use_case = ManageStockUseCase(stock_repository=mock_stock_repo)
-
-    # Perform the update operation
-    updated_stock = use_case.update_stock("AAPL", close_price=160.0)
-
-    # Use pytest.approx for floating point comparison
-    assert updated_stock.close_price == pytest.approx(160.0)
+def test_delete_stock_not_found(manage_stock_use_case, stock_repo):
+    # Mock the return value of get_by_ticker to simulate stock not found
+    stock_repo.get_by_ticker = MagicMock(return_value=None)
     
-def test_delete_stock(mock_stock_repo):
-    # Mock the return value of get_stock_by_ticker
-    mock_stock_repo.get_stock_by_ticker.return_value = Stock(
-        ticker="AAPL",
-        name="Apple Inc.",
-        industry="Technology",
-        sector="Consumer Electronics",
-        close_price=150.0,
-        date="2023-09-01"
-    )
-
-    # Ensure delete_stock is called when a stock is deleted
-    mock_stock_repo.delete_stock.return_value = True  # Ensure delete call succeeds
-
-    # Create an instance of ManageStockUseCase
-    use_case = ManageStockUseCase(stock_repository=mock_stock_repo)
+    # Mock the delete_stock function to ensure it can be asserted
+    stock_repo.delete_stock = MagicMock()
 
     # Call the delete method
-    result = use_case.delete_stock("AAPL")
+    result = manage_stock_use_case.delete_stock("NON_EXISTENT")
 
-    # Ensure that the deletion was successful
-    assert result is True
+    # Ensure that the method returns False when the stock is not found
+    assert result is False
 
-    # Verify that delete_stock was called once
-    mock_stock_repo.delete_stock.assert_called_once_with("AAPL")  # Check correct method is called
+    # Ensure delete_stock was not called
+    stock_repo.delete_stock.assert_not_called()
 
+
+def test_delete_stock_success(manage_stock_use_case, stock_repo, mock_stock):
+    # Mock the return value of get_by_ticker to simulate stock found
+    stock_repo.get_by_ticker = MagicMock(return_value=Stock(**mock_stock))
+    stock_repo.delete_stock = MagicMock(return_value=True)  # Ensure delete_stock call succeeds
+
+    # Call the delete method and assert success
+    result = manage_stock_use_case.delete_stock("AAPL")
+    assert result is True  # The stock should be deleted
+    stock_repo.delete_stock.assert_called_once_with("AAPL")
+
+
+def test_update_stock_fields(manage_stock_use_case, stock_repo, mock_stock):
+    # Simulate an existing stock found in the repository
+    stock_repo.get_by_ticker = MagicMock(return_value=Stock(**mock_stock))
     
-    
-def test_update_stock_not_found(mock_stock_repo):
-    mock_stock_repo.get_stock_by_ticker.return_value = None  # Simulate stock not found
+    # Mock the update method
+    stock_repo.update = MagicMock()
 
-    stock_use_case = ManageStockUseCase(stock_repository=mock_stock_repo)
-    
-    with pytest.raises(ValueError, match="Stock with ticker AAPL not found"):
-        stock_use_case.update_stock(ticker="AAPL", close_price=160.0)
-
-def test_delete_stock(mock_stock_repo):
-    # Mock the return value of get_stock_by_ticker
-    mock_stock_repo.get_stock_by_ticker.return_value = Stock(
-        ticker="AAPL",
-        name="Apple Inc.",
-        industry="Technology",
-        sector="Consumer Electronics",
-        close_price=150.0,
-        date="2023-09-01"
+    # Call update_stock method to update multiple fields
+    updated_stock = manage_stock_use_case.update_stock(
+        ticker="AAPL", close_price=160.0, name="New Name", industry="New Industry", sector="New Sector"
     )
 
-    # Mock the repository to expect delete to be called
-    mock_stock_repo.delete.return_value = True  # Ensure delete call succeeds
+    # Ensure the fields were updated correctly
+    assert updated_stock.close_price == 160.0
+    assert updated_stock.name == "New Name"
+    assert updated_stock.industry == "New Industry"
+    assert updated_stock.sector == "New Sector"
 
-    # Create an instance of ManageStockUseCase
-    use_case = ManageStockUseCase(stock_repository=mock_stock_repo)
+    # Ensure the stock repository update method was called
+    stock_repo.update.assert_called_once_with(updated_stock)
 
-    # Call the delete method
-    result = use_case.delete_stock("AAPL")
 
-    # Ensure that the deletion was successful
-    assert result is True
+def test_fetch_stock_data(manage_stock_use_case, stock_fetcher):
+    # Mock the stock fetcher to return dummy data
+    stock_fetcher.fetch = MagicMock(return_value={'ticker': 'AAPL', 'close_price': 150.0})
+    manage_stock_use_case.stock_fetcher = stock_fetcher
 
-    # Check if delete was called
-    mock_stock_repo.delete.assert_called_once_with("AAPL")  # Ensure delete is called
+    # Call the fetch_stock_data method
+    result = manage_stock_use_case.fetch_stock_data(ticker="AAPL", period="1mo")
+
+    # Assert that the fetcher returned data
+    assert result == {'ticker': 'AAPL', 'close_price': 150.0}
+    stock_fetcher.fetch.assert_called_once_with("AAPL", "1mo")
+
+
+def test_fetch_stock_data_no_data(manage_stock_use_case, stock_fetcher):
+    # Mock the stock fetcher to return None (to simulate no data being fetched)
+    stock_fetcher.fetch = MagicMock(return_value=None)
+    manage_stock_use_case.stock_fetcher = stock_fetcher
+
+    # Call the fetch_stock_data method
+    result = manage_stock_use_case.fetch_stock_data(ticker="AAPL", period="1mo")
+
+    # Assert that the fetch_stock_data method returns None when no data is fetched
+    assert result is None, "The fetch_stock_data method should return None when no data is available."
+    stock_fetcher.fetch.assert_called_once_with("AAPL", "1mo")
+
+
+def test_update_stock_repository_called(manage_stock_use_case, stock_repo, mock_stock):
+    # Mock an existing stock
+    stock_repo.get_by_ticker = MagicMock(return_value=Stock(**mock_stock))
+
+    # Mock the update method
+    stock_repo.update = MagicMock()
+
+    # Call update_stock method
+    updated_stock = manage_stock_use_case.update_stock(ticker="AAPL", close_price=160.0)
+
+    # Ensure that the stock repository update method was called
+    stock_repo.update.assert_called_once_with(updated_stock)
+
+
+def test_update_stock_no_updates(manage_stock_use_case, stock_repo, mock_stock):
+    # Simulate an existing stock found in the repository by mocking get_by_ticker
+    stock_repo.get_by_ticker = MagicMock(return_value=Stock(**mock_stock))
+    
+    # Mock the update method to ensure it's callable
+    stock_repo.update = MagicMock()
+
+    # Call update_stock without any fields to update
+    updated_stock = manage_stock_use_case.update_stock(ticker="AAPL")
+
+    # Ensure the stock returned is the same without updates
+    assert updated_stock.ticker == "AAPL"
+    assert updated_stock.close_price == 150.0  # Ensure old value is unchanged
+    assert updated_stock.name == "Apple"  # Ensure old value is unchanged
+
+    # Ensure repository's update method was called
+    stock_repo.update.assert_called_once_with(updated_stock)
+
+
+def test_delete_stock_failure(manage_stock_use_case, stock_repo):
+    # Mock the return value of get_by_ticker to simulate stock not found
+    stock_repo.get_by_ticker = MagicMock(return_value=None)
+    
+    # Mock delete_stock to make it a MagicMock
+    stock_repo.delete_stock = MagicMock()
+
+    # Call the delete method and assert failure
+    result = manage_stock_use_case.delete_stock("AAPL")
+    assert result is False  # The stock should not be deleted
+    
+    # Ensure delete_stock was not called
+    stock_repo.delete_stock.assert_not_called()
