@@ -77,7 +77,7 @@ def test_update_stock_fields(manage_stock_use_case, stock_repo, mock_stock):
     )
 
     # Ensure the fields were updated correctly
-    assert updated_stock.close_price == 160.0
+    assert isclose(updated_stock.close_price, 160.0, rel_tol=1e-9)
     assert updated_stock.name == "New Name"
     assert updated_stock.industry == "New Industry"
     assert updated_stock.sector == "New Sector"
@@ -138,7 +138,7 @@ def test_update_stock_no_updates(manage_stock_use_case, stock_repo, mock_stock):
 
     # Ensure the stock returned is the same without updates
     assert updated_stock.ticker == "AAPL"
-    assert updated_stock.close_price == 150.0  # Ensure old value is unchanged
+    assert isclose(updated_stock.close_price, 150.0, rel_tol=1e-9)
     assert updated_stock.name == "Apple"  # Ensure old value is unchanged
 
     # Ensure repository's update method was called
