@@ -1,3 +1,4 @@
+from math import isclose
 import pytest
 from unittest.mock import MagicMock
 from src.application.use_cases.manage_stock import ManageStockUseCase
@@ -28,7 +29,7 @@ def test_create_stock(manage_stock_use_case, stock_repo):
     assert stock.name == "Apple Inc."
     assert stock.industry == "Technology"
     assert stock.sector == "Consumer Electronics"
-    assert stock.close_price == 150.0
+    assert isclose(stock.close_price, 150.0, rel_tol=1e-9)
     assert stock.date == "2023-09-01"
 
     # Ensure repository's create_stock method was called with the correct stock object
