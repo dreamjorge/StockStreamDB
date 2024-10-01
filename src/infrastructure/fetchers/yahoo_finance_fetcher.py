@@ -3,22 +3,22 @@
 import yfinance as yf
 from src.repositories.stock_fetcher import StockFetcher
 
-class YahooFinanceFetcher(StockFetcher):
-
+class YahooFinanceFetcher:
     def fetch(self, ticker: str, period: str):
-        # Use yfinance to fetch data
-        stock_data = yf.Ticker(ticker).history(period=period)
-        
+        stock_data = yf.Ticker(ticker).history(period=period, interval="1d")
         if stock_data.empty:
-            return None
-        
-        # Return the most recent stock data as a dictionary
-        return {
-            'ticker': ticker,
-            'close_price': stock_data['Close'].iloc[-1],
-            'date': stock_data.index[-1].strftime('%Y-%m-%d'),
-            'open': stock_data['Open'].iloc[-1],
-            'high': stock_data['High'].iloc[-1],
-            'low': stock_data['Low'].iloc[-1],
-            'volume': stock_data['Volume'].iloc[-1],
-        }
+            return []
+
+        # Convert stock data to a list of dictionaries
+        return [
+            {
+                'ticker': ticker,
+                'close_price': row['Close'],
+                'date': index.strftime('%Y-%m-%d'),
+                'open': row['Open'],
+                'high': row['High'],
+                'low': row['Low'],
+                'volume': row['Volume']
+            }
+            for index, row in stock_data.iterrows()
+        ]

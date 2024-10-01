@@ -3,11 +3,47 @@ from datetime import datetime
 from src.infrastructure.db.stock_repository_impl import StockRepositoryImpl
 from src.application.use_cases.manage_stock import ManageStockUseCase  # Correct import
 from src.infrastructure.db.db_setup import get_session
+from src.infrastructure.fetchers.yahoo_finance_fetcher import YahooFinanceFetcher
 
 @click.group()
 def cli():
     """Manage stock data."""
     pass
+
+@click.command()
+@click.argument('ticker')
+def check_data(ticker):
+    """Print a few stock data entries for a specified ticker."""
+    with get_session() as session:
+        stock_repo = StockRepositoryImpl(session)
+        data = stock_repo.get_sample_stock_data(ticker)
+        if data:
+            for stock in data:
+                click.echo(f"Ticker: {stock.ticker}, Date: {stock.date}, Close Price: {stock.close_price}")
+        else:
+            click.echo(f"No data found for ticker {ticker}")
+
+
+
+@click.command()
+@click.argument('ticker')
+@click.argument('period')
+def fetch(ticker, period):
+    """Fetch stock data for a specified ticker and period, and log the status."""
+    with get_session() as session:
+        stock_repo = StockRepositoryImpl(session)
+        stock_fetcher = YahooFinanceFetcher()  # Initialize the stock fetcher
+        stock_use_case = ManageStockUseCase(stock_repo, stock_fetcher)  # Pass the stock fetcher
+        
+        # Check if the stock data already exists in the database
+        existing_data = stock_use_case.check_stock_exists(ticker, period)
+        
+        if existing_data:
+            click.echo(f"Data for {ticker} in the period {period} already exists.")
+        else:
+            stock_use_case.fetch_stock_data(ticker, period)
+            click.echo(f"Fetch complete for {ticker} in the period {period}.")
+
 
 @click.command()
 @click.argument('ticker')
@@ -18,6 +54,10 @@ def cli():
 @click.argument('date')
 def create(ticker, name, industry, sector, close_price, date):
     """Create a new stock entry."""
+    # Validate ticker format (e.g., check it's a valid ticker format)
+    if not ticker.isalpha() or len(ticker) > 5:
+        raise click.ClickException("Error: Invalid ticker format.")
+    
     try:
         stock_date = datetime.strptime(date, "%Y-%m-%d").date()
     except ValueError:
@@ -36,19 +76,6 @@ def create(ticker, name, industry, sector, close_price, date):
         )
         click.echo(f"Created stock {ticker}")
 
-@click.command()
-@click.argument('ticker')
-@click.argument('period')
-def fetch(ticker, period):
-    """Fetch stock data for a specified ticker and period."""
-    with get_session() as session:
-        stock_repo = StockRepositoryImpl(session)
-        stock_use_case = ManageStockUseCase(stock_repo)
-        data = stock_use_case.fetch_stock_data(ticker, period)
-        if not data.empty:
-            click.echo(data.to_string(index=False))
-        else:
-            click.echo(f"No data found for ticker {ticker} in the period {period}.")
 
 @click.command()
 @click.argument('ticker')
@@ -67,6 +94,7 @@ def delete(ticker):
 cli.add_command(create)
 cli.add_command(fetch)
 cli.add_command(delete)
+cli.add_command(check_data)
 
 def main():
     cli()
