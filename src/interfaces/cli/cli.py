@@ -19,7 +19,7 @@ def check_data(ticker):
         data = stock_repo.get_sample_stock_data(ticker)
         if data:
             for stock in data:
-                click.echo(f"Ticker: {stock.ticker}, Date: {stock.date}, Close Price: {stock.close_price}")
+                click.echo(f"Ticker: {stock.ticker}, Date: {stock.date}, Close Price: {stock.close}")
         else:
             click.echo(f"No data found for ticker {ticker}")
 
@@ -54,18 +54,22 @@ def fetch(ticker, period):
 @click.argument('date')
 def create(ticker, name, industry, sector, close_price, date):
     """Create a new stock entry."""
-    # Validate ticker format (e.g., check it's a valid ticker format)
+    # Validate ticker format
     if not ticker.isalpha() or len(ticker) > 5:
         raise click.ClickException("Error: Invalid ticker format.")
     
+    # Validate date format
     try:
         stock_date = datetime.strptime(date, "%Y-%m-%d").date()
     except ValueError:
         raise click.ClickException("Error: Invalid value for 'DATE'. Must be in YYYY-MM-DD format.")
     
+    # Use a session to interact with the database
     with get_session() as session:
         stock_repo = StockRepositoryImpl(session)
         stock_use_case = ManageStockUseCase(stock_repo)
+        
+        # Create the stock
         stock_use_case.create_stock(
             ticker=ticker, 
             name=name, 

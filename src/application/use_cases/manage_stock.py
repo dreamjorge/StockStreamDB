@@ -1,6 +1,10 @@
 # src/application/use_cases/manage_stock.py
 
 from domain.models.stock import Stock
+from datetime import datetime
+
+from domain.models.stock import Stock
+from datetime import datetime
 
 
 class ManageStockUseCase:
@@ -18,26 +22,56 @@ class ManageStockUseCase:
             close_price=close_price,
             date=date
         )
-        self.stock_repo.create(stock)
+        self.stock_repo.add(stock)  # Use consistent add method
+        self.stock_repo.commit()  # Commit the session after adding the stock
 
     def fetch_stock_data(self, ticker, period):
-        if not self.stock_fetcher:
-            raise AttributeError("Stock fetcher is not initialized.")
-        # Call stock fetcher to fetch data and do other tasks
-    
+        """Fetch stock data using the stock fetcher and save it to the repository."""
+        data = self.stock_fetcher.fetch(ticker, period)
+
+        # Convert date strings to datetime objects
+        for stock_record in data:
+            if isinstance(stock_record['date'], str):
+                stock_record['date'] = datetime.strptime(stock_record['date'], '%Y-%m-%d').date()
+
+        for stock_record in data:
+            # Create a Stock instance for each record
+            stock = Stock(
+                ticker=stock_record['ticker'],
+                name=None,  # If available, add a proper name
+                industry=None,  # Add industry if available
+                sector=None,  # Add sector if available
+                date=stock_record['date'],
+                open=stock_record['open'],
+                high=stock_record['high'],
+                low=stock_record['low'],
+                close=stock_record['close_price'],
+                volume=stock_record['volume']
+            )
+            
+            # Debugging line to check stock data before insertion
+            print(f"Adding stock: {stock.__dict__}")  # Check that id is not manually set
+            
+            self.stock_repo.add(stock)  # Add the stock object
+        
+        self.stock_repo.commit()  # Ensure that the data is committed to the session
+
+
     def delete_stock(self, ticker):
-        stock = self.stock_repository.get_by_ticker(ticker)
+        """Delete a stock by its ticker."""
+        stock = self.stock_repo.get_by_ticker(ticker)
         if stock:
-            self.stock_repository.delete_stock(ticker)  # Ensure this calls delete
+            self.stock_repo.delete(stock)  # Ensure this calls delete on the repository
             return True
         return False
 
     def update_stock(self, ticker, close_price=None, name=None, industry=None, sector=None):
-        stock = self.stock_repository.get_by_ticker(ticker)  # Use get_by_ticker if this is the correct method
+        """Update stock details."""
+        stock = self.stock_repo.get_by_ticker(ticker)  # Fetch the stock by its ticker
         if not stock:
-            raise ValueError(f"Stock with ticker {ticker} not found")  # This should raise the ValueError
+            raise ValueError(f"Stock with ticker {ticker} not found")
 
-        # Proceed to update fields if provided
+        # Update stock fields if provided
         if close_price:
             stock.close_price = close_price
         if name:
@@ -47,11 +81,9 @@ class ManageStockUseCase:
         if sector:
             stock.sector = sector
 
-        self.stock_repository.update(stock)
+        self.stock_repo.update(stock)  # Ensure stock is updated
         return stock
-
 
     def check_stock_exists(self, ticker, period):
         """Check if stock data for the ticker and period already exists."""
-        # Assuming you store data with a `date` field, modify this query accordingly
         return self.stock_repo.stock_exists(ticker, period)

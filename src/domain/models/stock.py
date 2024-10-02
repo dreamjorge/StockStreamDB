@@ -7,8 +7,8 @@ class Stock(Base):
         UniqueConstraint('ticker', 'date', name='uix_ticker_date'),  # Ensure ticker and date combination is unique
         {'extend_existing': True}
     )
-    id = Column(Integer, primary_key=True)  # Removed autoincrement
-    ticker = Column(String, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)  # Enable autoincrement for id
+    ticker = Column(String, nullable=False)  # Remove primary_key=True from ticker
     name = Column(String)
     industry = Column(String)
     sector = Column(String)

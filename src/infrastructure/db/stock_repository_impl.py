@@ -114,3 +114,24 @@ class StockRepositoryImpl(StockRepository):
     def get_sample_stock_data(self, ticker):
         # Query the database to get some sample data for the given ticker
         return self.session.query(Stock).filter_by(ticker=ticker).limit(5).all()
+    
+    def add_stock(self, stock):
+        self.session.add(stock)
+
+    def commit(self):
+        self.session.commit()
+        
+        
+
+    def delete(self, ticker: str) -> bool:
+        with self.session_scope():
+            stock = self.get_by_ticker(ticker)
+            if stock:
+                self.session.delete(stock)
+                self.session.commit()  # Only commit if the stock is found and deleted
+                return True
+            return False
+        
+    def add(self, stock):
+        """Add a stock object to the session."""
+        self.session.add(stock)
