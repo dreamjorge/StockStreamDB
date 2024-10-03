@@ -28,22 +28,30 @@ def create_stocks_table(table_name: str, autoincrement: bool = False):
     )
 
 
+def copy_table_data(source_table: str, target_table: str):
+    """Helper function to copy data from one table to another."""
+    op.execute(f"""
+        INSERT INTO {target_table} (id, ticker, name, industry, sector, date, open, high, low, close, volume, market_cap, pe_ratio)
+        SELECT id, ticker, name, industry, sector, date, open, high, low, close, volume, market_cap, pe_ratio
+        FROM {source_table}
+    """)
+
+
+def drop_and_rename_table(old_table: str, new_table: str):
+    """Helper function to drop a table and rename another."""
+    op.drop_table(old_table)
+    op.rename_table(new_table, old_table)
+
+
 def upgrade():
-    # Create a new table with autoincrement on the id
+    # Create a new table with autoincrement
     create_stocks_table('stocks_new', autoincrement=True)
 
     # Copy data from old table to new table
-    op.execute("""
-        INSERT INTO stocks_new (id, ticker, name, industry, sector, date, open, high, low, close, volume, market_cap, pe_ratio)
-        SELECT id, ticker, name, industry, sector, date, open, high, low, close, volume, market_cap, pe_ratio
-        FROM stocks
-    """)
+    copy_table_data('stocks', 'stocks_new')
 
-    # Drop the old table
-    op.drop_table('stocks')
-
-    # Rename the new table to the original name
-    op.rename_table('stocks_new', 'stocks')
+    # Drop old table and rename the new one
+    drop_and_rename_table('stocks', 'stocks_new')
 
 
 def downgrade():
@@ -51,14 +59,7 @@ def downgrade():
     create_stocks_table('stocks_old', autoincrement=False)
 
     # Copy data back to the old schema
-    op.execute("""
-        INSERT INTO stocks_old (id, ticker, name, industry, sector, date, open, high, low, close, volume, market_cap, pe_ratio)
-        SELECT id, ticker, name, industry, sector, date, open, high, low, close, volume, market_cap, pe_ratio
-        FROM stocks
-    """)
+    copy_table_data('stocks', 'stocks_old')
 
-    # Drop the current table
-    op.drop_table('stocks')
-
-    # Rename the old table back to the original name
-    op.rename_table('stocks_old', 'stocks')
+    # Drop current table and rename the old one
+    drop_and_rename_table('stocks', 'stocks_old')
