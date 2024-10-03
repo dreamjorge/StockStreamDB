@@ -1,11 +1,5 @@
-# src/application/use_cases/manage_stock.py
-
 from domain.models.stock import Stock
 from datetime import datetime
-
-from domain.models.stock import Stock
-from datetime import datetime
-
 
 class ManageStockUseCase:
     def __init__(self, stock_repo, stock_fetcher=None):
@@ -22,20 +16,24 @@ class ManageStockUseCase:
             close=close,
             date=date
         )
-        self.stock_repo.add(stock)  # Use consistent add method
-        self.stock_repo.commit()  # Commit the session after adding the stock
+        self.stock_repo.create_stock(stock)  # Use create_stock instead of add
+        self.stock_repo.commit()
+        return stock
 
     def fetch_stock_data(self, ticker, period):
         """Fetch stock data using the stock fetcher and save it to the repository."""
         data = self.stock_fetcher.fetch(ticker, period)
+
+        if not data:
+            return None  # Handle None case if no data is fetched
 
         # Convert date strings to datetime objects
         for stock_record in data:
             if isinstance(stock_record['date'], str):
                 stock_record['date'] = datetime.strptime(stock_record['date'], '%Y-%m-%d').date()
 
+        # Store the fetched data
         for stock_record in data:
-            # Create a Stock instance for each record
             stock = Stock(
                 ticker=stock_record['ticker'],
                 name=None,  # If available, add a proper name
@@ -50,20 +48,21 @@ class ManageStockUseCase:
             )
             
             # Debugging line to check stock data before insertion
-            print(f"Adding stock: {stock.__dict__}")  # Check that id is not manually set
+            print(f"Adding stock: {stock.__dict__}")
             
             self.stock_repo.add(stock)  # Add the stock object
         
-        self.stock_repo.commit()  # Ensure that the data is committed to the session
-
+        self.stock_repo.commit()  # Commit the changes
+        return data  # Return the fetched data for validation or further use
 
     def delete_stock(self, ticker):
         """Delete a stock by its ticker."""
         stock = self.stock_repo.get_by_ticker(ticker)
         if stock:
             self.stock_repo.delete(stock)  # Ensure this calls delete on the repository
+            self.stock_repo.commit()  # Commit the transaction after deletion
             return True
-        return False
+        return False  # Return False if the stock was not found
 
     def update_stock(self, ticker, close=None, name=None, industry=None, sector=None):
         """Update stock details."""
@@ -81,8 +80,9 @@ class ManageStockUseCase:
         if sector:
             stock.sector = sector
 
-        self.stock_repo.update(stock)  # Ensure stock is updated
-        return stock
+        self.stock_repo.update(stock)  # Ensure the stock is updated
+        self.stock_repo.commit()  # Commit the transaction after updating
+        return stock  # Return the updated stock for validation or further use
 
     def check_stock_exists(self, ticker, period):
         """Check if stock data for the ticker and period already exists."""

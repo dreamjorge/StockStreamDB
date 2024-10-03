@@ -3,11 +3,34 @@ import pytest
 from unittest.mock import MagicMock
 from src.application.use_cases.manage_stock import ManageStockUseCase
 from src.domain.models.stock import Stock
-
+from datetime import date  # Add this import
 
 @pytest.fixture
-def manage_stock_use_case(stock_repo):
-    return ManageStockUseCase(stock_repository=stock_repo)
+def stock_repo():
+    # Mock the StockRepository
+    return MagicMock()
+
+@pytest.fixture
+def stock_fetcher():
+    # Mock the StockFetcher
+    return MagicMock()
+
+@pytest.fixture
+def mock_stock():
+    # Provide a mock stock object
+    return {
+        'ticker': 'AAPL',
+        'name': 'Apple',
+        'industry': 'Technology',
+        'sector': 'Consumer Electronics',
+        'close': 150.0,
+        'date': '2023-09-01'
+    }
+
+@pytest.fixture
+def manage_stock_use_case(stock_repo, stock_fetcher):
+    # Inject the stock_repo and stock_fetcher into the use case
+    return ManageStockUseCase(stock_repo=stock_repo, stock_fetcher=stock_fetcher)
 
 
 def test_create_stock(manage_stock_use_case, stock_repo):
@@ -55,13 +78,20 @@ def test_delete_stock_not_found(manage_stock_use_case, stock_repo):
 
 def test_delete_stock_success(manage_stock_use_case, stock_repo, mock_stock):
     # Mock the return value of get_by_ticker to simulate stock found
-    stock_repo.get_by_ticker = MagicMock(return_value=Stock(**mock_stock))
-    stock_repo.delete_stock = MagicMock(return_value=True)  # Ensure delete_stock call succeeds
+    stock = Stock(**mock_stock)
+    stock_repo.get_by_ticker = MagicMock(return_value=stock)
+    stock_repo.delete = MagicMock(return_value=True)  # Mock delete method instead of delete_stock
 
     # Call the delete method and assert success
     result = manage_stock_use_case.delete_stock("AAPL")
     assert result is True  # The stock should be deleted
-    stock_repo.delete_stock.assert_called_once_with("AAPL")
+    
+    # Assert that delete was called with the correct stock (checking attributes, not identity)
+    stock_repo.delete.assert_called_once()
+    args = stock_repo.delete.call_args[0]
+    assert args[0].ticker == stock.ticker  # Compare attributes, not the object itself
+    assert args[0].close == stock.close
+
 
 
 def test_update_stock_fields(manage_stock_use_case, stock_repo, mock_stock):
@@ -87,15 +117,33 @@ def test_update_stock_fields(manage_stock_use_case, stock_repo, mock_stock):
 
 
 def test_fetch_stock_data(manage_stock_use_case, stock_fetcher):
-    # Mock the stock fetcher to return dummy data
-    stock_fetcher.fetch = MagicMock(return_value={'ticker': 'AAPL', 'close': 150.0})
+    # Mock the stock fetcher to return a list of dictionaries with all required keys
+    stock_fetcher.fetch = MagicMock(return_value=[
+        {
+            'ticker': 'AAPL',
+            'close': 150.0,
+            'date': '2023-09-01',
+            'open': 148.0,
+            'high': 151.0,
+            'low': 147.0,
+            'volume': 1000000
+        }
+    ])
     manage_stock_use_case.stock_fetcher = stock_fetcher
 
     # Call the fetch_stock_data method
     result = manage_stock_use_case.fetch_stock_data(ticker="AAPL", period="1mo")
 
-    # Assert that the fetcher returned data
-    assert result == {'ticker': 'AAPL', 'close': 150.0}
+    # Assert that the fetcher returned data, compare with datetime.date
+    assert result == [{
+        'ticker': 'AAPL',
+        'close': 150.0,
+        'date': date(2023, 9, 1),  # Compare against a datetime.date object
+        'open': 148.0,
+        'high': 151.0,
+        'low': 147.0,
+        'volume': 1000000
+    }]
     stock_fetcher.fetch.assert_called_once_with("AAPL", "1mo")
 
 

@@ -1,3 +1,4 @@
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from src.domain.models.stock import Stock
 from src.repositories.stock_repository import StockRepository
