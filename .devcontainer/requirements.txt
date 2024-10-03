@@ -12,3 +12,4 @@ python-dotenv
 PyGithub
 pytest-cov
 dependency_injector
+ pytest-mock
