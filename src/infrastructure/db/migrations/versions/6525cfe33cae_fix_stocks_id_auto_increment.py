@@ -7,11 +7,12 @@ down_revision = 'bf17a92c72f8'  # Adjust to the correct down revision
 branch_labels = None
 depends_on = None
 
-def upgrade():
-    # Create a new table with the correct schema
+
+def create_stocks_table(table_name: str, autoincrement: bool = False):
+    """Helper function to create the stocks table."""
     op.create_table(
-        'stocks_new',
-        sa.Column('id', sa.Integer(), primary_key=True, autoincrement=True),
+        table_name,
+        sa.Column('id', sa.Integer(), primary_key=True, autoincrement=autoincrement),
         sa.Column('ticker', sa.String(), nullable=False),
         sa.Column('name', sa.String()),
         sa.Column('industry', sa.String()),
@@ -25,6 +26,11 @@ def upgrade():
         sa.Column('market_cap', sa.Float()),
         sa.Column('pe_ratio', sa.Float()),
     )
+
+
+def upgrade():
+    # Create a new table with autoincrement on the id
+    create_stocks_table('stocks_new', autoincrement=True)
 
     # Copy data from old table to new table
     op.execute("""
@@ -39,24 +45,10 @@ def upgrade():
     # Rename the new table to the original name
     op.rename_table('stocks_new', 'stocks')
 
+
 def downgrade():
     # Recreate the old table schema without autoincrement on id
-    op.create_table(
-        'stocks_old',
-        sa.Column('id', sa.Integer(), primary_key=True),  # Without autoincrement
-        sa.Column('ticker', sa.String(), nullable=False),
-        sa.Column('name', sa.String()),
-        sa.Column('industry', sa.String()),
-        sa.Column('sector', sa.String()),
-        sa.Column('date', sa.Date(), nullable=False),
-        sa.Column('open', sa.Float()),
-        sa.Column('high', sa.Float()),
-        sa.Column('low', sa.Float()),
-        sa.Column('close', sa.Float()),
-        sa.Column('volume', sa.Float()),
-        sa.Column('market_cap', sa.Float()),
-        sa.Column('pe_ratio', sa.Float()),
-    )
+    create_stocks_table('stocks_old', autoincrement=False)
 
     # Copy data back to the old schema
     op.execute("""
