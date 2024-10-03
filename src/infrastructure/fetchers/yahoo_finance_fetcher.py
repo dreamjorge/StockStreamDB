@@ -1,5 +1,5 @@
 import yfinance as yf
-import pandas as pd  # <-- Add this line to import pandas
+import pandas as pd  # <-- Ensure pandas is imported
 from typing import List, Dict, Union, Optional
 import logging
 
@@ -23,9 +23,13 @@ class YahooFinanceFetcher:
             else:
                 raise ValueError(f"Unsupported return_format: {return_format}")
 
+        except ValueError as ve:
+            # Allow ValueError to propagate for unsupported formats
+            raise ve
         except Exception as e:
             self.logger.error(f"Failed to fetch data for {ticker}: {e}")
             return None
+
 
     def _to_list(self, ticker: str, stock_data: pd.DataFrame) -> List[Dict]:
         return [
