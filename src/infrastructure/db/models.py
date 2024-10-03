@@ -11,7 +11,7 @@ class Stock(Base):
     name = Column(String)
     industry = Column(String)
     sector = Column(String)
-    close_price = Column(Float)
+    close = Column(Float)
     market_cap = Column(Float)
     pe_ratio = Column(Float)
 

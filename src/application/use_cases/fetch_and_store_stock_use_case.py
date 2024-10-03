@@ -15,7 +15,7 @@ class FetchAndStoreStockUseCase:
                 name="Unknown",  # Update according to your needs
                 industry="Unknown",
                 sector="Unknown",
-                close_price=data['close_price'],
+                close=data['close'],
                 date=data['date'],
                 open=data['open'],
                 high=data['high'],

@@ -27,7 +27,7 @@ class ConcreteStockRepository(StockRepository):
         query = self.session.query(Stock).filter(Stock.ticker == ticker).all()
 
         # Convert query results to DataFrame for aggregation
-        data = [{'date': result.date, 'price': result.close_price} for result in query]
+        data = [{'date': result.date, 'price': result.close} for result in query]
         df = pd.DataFrame(data)
 
         # Resample data based on the specified granularity
@@ -40,6 +40,6 @@ class ConcreteStockRepository(StockRepository):
             name='Aggregated Stock',
             industry='N/A',  # Fill these values as appropriate
             sector='N/A',
-            close_price=resampled_data['price'].iloc[-1],  # Take the last value as the latest
+            close=resampled_data['price'].iloc[-1],  # Take the last value as the latest
             date=resampled_data['date'].iloc[-1]
         )

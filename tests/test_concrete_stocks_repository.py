@@ -26,7 +26,7 @@ def sample_stock():
         industry='Technology',
         sector='Consumer Electronics',
         date=datetime(2024, 9, 26),
-        close_price=150.0
+        close=150.0
     )
 
 def test_get_stock_data(stock_repository, mock_session):
@@ -38,7 +38,7 @@ def test_get_stock_data(stock_repository, mock_session):
             industry='Technology',
             sector='Consumer Electronics',
             date=datetime(2024, 9, 26),
-            close_price=150.0
+            close=150.0
         ),
         Stock(
             ticker='AAPL',
@@ -46,7 +46,7 @@ def test_get_stock_data(stock_repository, mock_session):
             industry='Technology',
             sector='Consumer Electronics',
             date=datetime(2024, 9, 27),
-            close_price=155.0
+            close=155.0
         ),
         Stock(
             ticker='AAPL',
@@ -54,7 +54,7 @@ def test_get_stock_data(stock_repository, mock_session):
             industry='Technology',
             sector='Consumer Electronics',
             date=datetime(2024, 9, 28),
-            close_price=160.0
+            close=160.0
         )
     ]
 

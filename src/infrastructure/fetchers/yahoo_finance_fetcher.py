@@ -13,7 +13,7 @@ class YahooFinanceFetcher:
         return [
             {
                 'ticker': ticker,
-                'close_price': row['Close'],
+                'close': row['Close'],
                 'date': index.strftime('%Y-%m-%d'),
                 'open': row['Open'],
                 'high': row['High'],

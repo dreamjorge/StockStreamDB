@@ -14,7 +14,7 @@ class FetchAndStoreStockService:
                 stock_entity = Stock(
                     ticker=stock['ticker'],
                     date=stock['date'],
-                    close_price=stock['close_price'],
+                    close=stock['close'],
                     open_price=stock['open'],
                     high_price=stock['high'],
                     low_price=stock['low'],

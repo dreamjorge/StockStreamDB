@@ -15,7 +15,7 @@ def stock_repo(db_session):
 
 def test_create_stock(stock_repo, db_session):
     # Mock stock object
-    stock = Stock(ticker="AAPL", name="Apple", industry="Technology", sector="Consumer Electronics", close_price=150.0, date="2023-01-01")
+    stock = Stock(ticker="AAPL", name="Apple", industry="Technology", sector="Consumer Electronics", close=150.0, date="2023-01-01")
 
     # Call create_stock
     stock_repo.create_stock(stock)
@@ -26,7 +26,7 @@ def test_create_stock(stock_repo, db_session):
 
 
 def test_get_stock(stock_repo, db_session):
-    mock_stock = Stock(ticker="AAPL", name="Apple", industry="Technology", sector="Consumer Electronics", close_price=145.0, date="2023-01-01")
+    mock_stock = Stock(ticker="AAPL", name="Apple", industry="Technology", sector="Consumer Electronics", close=145.0, date="2023-01-01")
     
     # Set the mock query result to return the stock object
     db_session.query().filter_by().first.return_value = mock_stock
@@ -50,7 +50,7 @@ def test_get_non_existent_stock(stock_repo, db_session):
 
 def test_update_stock(stock_repo, db_session):
     # Mock stock object
-    stock = Stock(ticker="AAPL", name="Apple", industry="Technology", sector="Consumer Electronics", close_price=150.0, date="2023-01-01")
+    stock = Stock(ticker="AAPL", name="Apple", industry="Technology", sector="Consumer Electronics", close=150.0, date="2023-01-01")
     
     # Call update
     stock_repo.update(stock)
@@ -61,7 +61,7 @@ def test_update_stock(stock_repo, db_session):
 
 def test_delete_stock(stock_repo, db_session):
     # Mock stock object
-    mock_stock = Stock(ticker="AAPL", name="Apple", industry="Technology", sector="Consumer Electronics", close_price=145.0, date="2023-01-01")
+    mock_stock = Stock(ticker="AAPL", name="Apple", industry="Technology", sector="Consumer Electronics", close=145.0, date="2023-01-01")
 
     # Ensure the query chain returns the correct mock_stock object
     mock_query = db_session.query.return_value

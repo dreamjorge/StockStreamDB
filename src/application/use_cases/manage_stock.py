@@ -12,14 +12,14 @@ class ManageStockUseCase:
         self.stock_repo = stock_repo
         self.stock_fetcher = stock_fetcher
 
-    def create_stock(self, ticker, name, industry, sector, close_price, date):
+    def create_stock(self, ticker, name, industry, sector, close, date):
         """Create a new stock entry."""
         stock = Stock(
             ticker=ticker,
             name=name,
             industry=industry,
             sector=sector,
-            close_price=close_price,
+            close=close,
             date=date
         )
         self.stock_repo.add(stock)  # Use consistent add method
@@ -45,7 +45,7 @@ class ManageStockUseCase:
                 open=stock_record['open'],
                 high=stock_record['high'],
                 low=stock_record['low'],
-                close=stock_record['close_price'],
+                close=stock_record['close'],
                 volume=stock_record['volume']
             )
             
@@ -65,15 +65,15 @@ class ManageStockUseCase:
             return True
         return False
 
-    def update_stock(self, ticker, close_price=None, name=None, industry=None, sector=None):
+    def update_stock(self, ticker, close=None, name=None, industry=None, sector=None):
         """Update stock details."""
         stock = self.stock_repo.get_by_ticker(ticker)  # Fetch the stock by its ticker
         if not stock:
             raise ValueError(f"Stock with ticker {ticker} not found")
 
         # Update stock fields if provided
-        if close_price:
-            stock.close_price = close_price
+        if close:
+            stock.close = close
         if name:
             stock.name = name
         if industry:

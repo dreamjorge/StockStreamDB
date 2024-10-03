@@ -12,7 +12,7 @@ def yahoo_finance_fetcher():
     # Create a mock dictionary to represent stock data
     mock_data = {
         'ticker': 'AAPL',
-        'close_price': 150.0,
+        'close': 150.0,
         'date': '2023-09-01',
         'open': 145.0,
         'high': 146.0,
@@ -71,7 +71,7 @@ def test_fetch_stock_data(mock_ticker):
     assert result is not None, "The fetcher returned None, expected valid data."
 
     # Assert that the returned data contains the correct values in a dictionary format
-    assert result['close_price'] == pytest.approx(227.79, rel=1e-5)
+    assert result['close'] == pytest.approx(227.79, rel=1e-5)
     assert result['date'] == '2024-09-27'
     assert result['open'] == pytest.approx(228.46, rel=1e-5)
     assert result['high'] == pytest.approx(229.52, rel=1e-5)

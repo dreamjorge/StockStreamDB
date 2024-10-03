@@ -50,9 +50,9 @@ def fetch(ticker, period):
 @click.argument('name')
 @click.argument('industry')
 @click.argument('sector')
-@click.argument('close_price', type=float)
+@click.argument('close', type=float)
 @click.argument('date')
-def create(ticker, name, industry, sector, close_price, date):
+def create(ticker, name, industry, sector, close, date):
     """Create a new stock entry."""
     # Validate ticker format
     if not ticker.isalpha() or len(ticker) > 5:
@@ -75,7 +75,7 @@ def create(ticker, name, industry, sector, close_price, date):
             name=name, 
             industry=industry, 
             sector=sector, 
-            close_price=close_price, 
+            close=close, 
             date=stock_date
         )
         click.echo(f"Created stock {ticker}")

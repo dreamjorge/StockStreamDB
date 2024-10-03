@@ -20,7 +20,7 @@ def test_create_stock(manage_stock_use_case, stock_repo):
         name="Apple Inc.",
         industry="Technology",
         sector="Consumer Electronics",
-        close_price=150.0,
+        close=150.0,
         date="2023-09-01"
     )
 
@@ -29,7 +29,7 @@ def test_create_stock(manage_stock_use_case, stock_repo):
     assert stock.name == "Apple Inc."
     assert stock.industry == "Technology"
     assert stock.sector == "Consumer Electronics"
-    assert isclose(stock.close_price, 150.0, rel_tol=1e-9)
+    assert isclose(stock.close, 150.0, rel_tol=1e-9)
     assert stock.date == "2023-09-01"
 
     # Ensure repository's create_stock method was called with the correct stock object
@@ -73,11 +73,11 @@ def test_update_stock_fields(manage_stock_use_case, stock_repo, mock_stock):
 
     # Call update_stock method to update multiple fields
     updated_stock = manage_stock_use_case.update_stock(
-        ticker="AAPL", close_price=160.0, name="New Name", industry="New Industry", sector="New Sector"
+        ticker="AAPL", close=160.0, name="New Name", industry="New Industry", sector="New Sector"
     )
 
     # Ensure the fields were updated correctly
-    assert isclose(updated_stock.close_price, 160.0, rel_tol=1e-9)
+    assert isclose(updated_stock.close, 160.0, rel_tol=1e-9)
     assert updated_stock.name == "New Name"
     assert updated_stock.industry == "New Industry"
     assert updated_stock.sector == "New Sector"
@@ -88,14 +88,14 @@ def test_update_stock_fields(manage_stock_use_case, stock_repo, mock_stock):
 
 def test_fetch_stock_data(manage_stock_use_case, stock_fetcher):
     # Mock the stock fetcher to return dummy data
-    stock_fetcher.fetch = MagicMock(return_value={'ticker': 'AAPL', 'close_price': 150.0})
+    stock_fetcher.fetch = MagicMock(return_value={'ticker': 'AAPL', 'close': 150.0})
     manage_stock_use_case.stock_fetcher = stock_fetcher
 
     # Call the fetch_stock_data method
     result = manage_stock_use_case.fetch_stock_data(ticker="AAPL", period="1mo")
 
     # Assert that the fetcher returned data
-    assert result == {'ticker': 'AAPL', 'close_price': 150.0}
+    assert result == {'ticker': 'AAPL', 'close': 150.0}
     stock_fetcher.fetch.assert_called_once_with("AAPL", "1mo")
 
 
@@ -120,7 +120,7 @@ def test_update_stock_repository_called(manage_stock_use_case, stock_repo, mock_
     stock_repo.update = MagicMock()
 
     # Call update_stock method
-    updated_stock = manage_stock_use_case.update_stock(ticker="AAPL", close_price=160.0)
+    updated_stock = manage_stock_use_case.update_stock(ticker="AAPL", close=160.0)
 
     # Ensure that the stock repository update method was called
     stock_repo.update.assert_called_once_with(updated_stock)
@@ -138,7 +138,7 @@ def test_update_stock_no_updates(manage_stock_use_case, stock_repo, mock_stock):
 
     # Ensure the stock returned is the same without updates
     assert updated_stock.ticker == "AAPL"
-    assert isclose(updated_stock.close_price, 150.0, rel_tol=1e-9)
+    assert isclose(updated_stock.close, 150.0, rel_tol=1e-9)
     assert updated_stock.name == "Apple"  # Ensure old value is unchanged
 
     # Ensure repository's update method was called
