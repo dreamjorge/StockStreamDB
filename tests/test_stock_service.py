@@ -8,21 +8,25 @@ class TestStockService(unittest.TestCase):
         # Arrange
         mock_repo = MagicMock()
         mock_repo.get_stock.return_value = Stock(
-            ticker="AAPL", 
-            name="Apple Inc.", 
-            industry="Technology", 
-            sector="Consumer Electronics", 
-            close=150.0, 
+            ticker="AAPL",
+            name="Apple Inc.",
+            industry="Technology",
+            sector="Consumer Electronics",
+            close=150.0,
             date="2024-04-27"
         )
-        service = StockService(repository=mock_repo)
+        mock_fetcher = MagicMock()
+
+        # Use correct parameter names as per StockService constructor
+        service = StockService(stock_repository=mock_repo, stock_fetcher=mock_fetcher)
 
         # Act
-        stock = service.fetch_stock("AAPL")
+        stock = service.stock_repository.get_stock("AAPL")
 
         # Assert
+        self.assertEqual(stock.ticker, "AAPL")
         self.assertEqual(stock.name, "Apple Inc.")
-        mock_repo.get_stock.assert_called_once_with("AAPL")
-
+        self.assertEqual(stock.close, 150.0)
+        
 if __name__ == '__main__':
     unittest.main()

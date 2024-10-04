@@ -122,7 +122,7 @@ def test_fetch_stock_data(manage_stock_use_case, stock_fetcher):
         {
             'ticker': 'AAPL',
             'close': 150.0,
-            'date': '2023-09-01',
+            'date': date(2023, 9, 1),  # Date as datetime.date object
             'open': 148.0,
             'high': 151.0,
             'low': 147.0,

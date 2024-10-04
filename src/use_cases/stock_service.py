@@ -3,8 +3,9 @@ from src.repositories.stock_repository import StockRepository
 from src.domain.models.stock import Stock
 
 class StockService:
-    def __init__(self, repository: StockRepository):
-        self.repository = repository
+    def __init__(self, stock_repository, stock_fetcher):
+        self.stock_repository = stock_repository
+        self.stock_fetcher = stock_fetcher
 
     def fetch_stock(self, ticker: str) -> Stock:
         return self.repository.get_stock(ticker)

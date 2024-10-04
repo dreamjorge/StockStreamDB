@@ -2,8 +2,8 @@ import yfinance as yf
 import pandas as pd  # <-- Ensure pandas is imported
 from typing import List, Dict, Union, Optional
 import logging
-
-class YahooFinanceFetcher:
+from src.repositories.stock_fetcher import StockFetcher
+class YahooFinanceFetcher(StockFetcher):
     def __init__(self):
         self.logger = logging.getLogger(__name__)
 

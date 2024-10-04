@@ -1,8 +1,11 @@
 from domain.models.stock import Stock
 from datetime import datetime
+from datetime import timedelta
+from domain.stock_fetcher import StockFetcher
+from infrastructure.db.stock_repository_impl import StockRepositoryImpl
 
 class ManageStockUseCase:
-    def __init__(self, stock_repo, stock_fetcher=None):
+    def __init__(self, stock_repo: StockRepositoryImpl, stock_fetcher: StockFetcher):
         self.stock_repo = stock_repo
         self.stock_fetcher = stock_fetcher
 
@@ -20,41 +23,21 @@ class ManageStockUseCase:
         self.stock_repo.commit()
         return stock
 
-    def fetch_stock_data(self, ticker, period):
-        """Fetch stock data using the stock fetcher and save it to the repository."""
-        data = self.stock_fetcher.fetch(ticker, period)
-
-        if not data:
-            return None  # Handle None case if no data is fetched
-
-        # Convert date strings to datetime objects
-        for stock_record in data:
-            if isinstance(stock_record['date'], str):
-                stock_record['date'] = datetime.strptime(stock_record['date'], '%Y-%m-%d').date()
-
-        # Store the fetched data
-        for stock_record in data:
+    def fetch_and_store_stock(self, ticker: str, period: str):
+        """Fetch stock data and store it in the repository."""
+        stock_data = self.stock_fetcher.fetch(ticker, period)
+        for stock_record in stock_data:
             stock = Stock(
-                ticker=stock_record['ticker'],
-                name=None,  # If available, add a proper name
-                industry=None,  # Add industry if available
-                sector=None,  # Add sector if available
+                ticker=ticker,
                 date=stock_record['date'],
+                close=stock_record['close'],
                 open=stock_record['open'],
                 high=stock_record['high'],
                 low=stock_record['low'],
-                close=stock_record['close'],
                 volume=stock_record['volume']
             )
+            self.stock_repo.save(stock)
             
-            # Debugging line to check stock data before insertion
-            print(f"Adding stock: {stock.__dict__}")
-            
-            self.stock_repo.add(stock)  # Add the stock object
-        
-        self.stock_repo.commit()  # Commit the changes
-        return data  # Return the fetched data for validation or further use
-
     def delete_stock(self, ticker):
         """Delete a stock by its ticker."""
         stock = self.stock_repo.get_by_ticker(ticker)
@@ -87,3 +70,6 @@ class ManageStockUseCase:
     def check_stock_exists(self, ticker, period):
         """Check if stock data for the ticker and period already exists."""
         return self.stock_repo.stock_exists(ticker, period)
+    
+    def fetch_stock_data(self, ticker: str, period: str):
+        return self.stock_fetcher.fetch(ticker, period)
