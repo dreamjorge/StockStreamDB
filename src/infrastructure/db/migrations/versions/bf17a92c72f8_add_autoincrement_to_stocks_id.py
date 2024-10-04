@@ -8,11 +8,9 @@ down_revision: Union[str, None] = "fb225cc14cd2"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-
-def create_stocks_table(table_name: str, autoincrement: bool = False):
-    """Helper function to create the stocks table."""
-    op.create_table(
-        table_name,
+def stock_columns(autoincrement: bool):
+    """Return the common columns for the stocks table."""
+    return [
         sa.Column('id', sa.Integer(), primary_key=True, autoincrement=autoincrement),
         sa.Column('ticker', sa.String(), nullable=False),
         sa.Column('name', sa.String()),
@@ -26,6 +24,13 @@ def create_stocks_table(table_name: str, autoincrement: bool = False):
         sa.Column('volume', sa.Float()),
         sa.Column('market_cap', sa.Float()),
         sa.Column('pe_ratio', sa.Float()),
+    ]
+
+def create_stocks_table(table_name: str, autoincrement: bool = False):
+    """Helper function to create the stocks table."""
+    op.create_table(
+        table_name,
+        *stock_columns(autoincrement)
     )
 
 
