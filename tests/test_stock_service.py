@@ -12,7 +12,7 @@ class TestStockService(unittest.TestCase):
             name="Apple Inc.", 
             industry="Technology", 
             sector="Consumer Electronics", 
-            close_price=150.0, 
+            close=150.0, 
             date="2024-04-27"
         )
         service = StockService(repository=mock_repo)

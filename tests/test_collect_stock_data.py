@@ -36,7 +36,7 @@ def test_collect_stock_data_success(use_case, mock_fetcher):
     # Assert that the returned stock has the expected values
     assert stock.ticker == 'AAPL'
     assert stock.name == 'Apple Inc.'
-    assert isclose(stock.close_price, 227.34, rel_tol=1e-9)
+    assert isclose(stock.close, 227.34, rel_tol=1e-9)
     assert stock.date == datetime(2024, 9, 26)
 
 
@@ -96,5 +96,5 @@ def test_collect_stock_data_with_various_periods(use_case, mock_fetcher):
         # Assert that the returned stock has the expected values
         assert stock.ticker == 'AAPL'
         assert stock.name == 'Apple Inc.'
-        assert isclose(stock.close_price, 227.34, rel_tol=1e-9)
+        assert isclose(stock.close, 227.34, rel_tol=1e-9)
         assert stock.date == datetime(2024, 9, 26)

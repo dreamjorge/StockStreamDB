@@ -22,7 +22,7 @@ class CollectStockData:
             name=stock_data['name'],
             industry=stock_data['industry'],
             sector=stock_data['sector'],
-            close_price=stock_data['close'],
+            close=stock_data['close'],
             date=stock_data['date']
         )
         return stock

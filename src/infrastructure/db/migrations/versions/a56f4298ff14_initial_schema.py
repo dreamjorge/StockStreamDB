@@ -84,7 +84,7 @@ def upgrade() -> None:
     op.add_column(
         "stocks", sa.Column("sector", sa.String(length=255), nullable=True)
     )
-    op.drop_column("stocks", "close_price")
+    op.drop_column("stocks", "close")
     op.drop_column("stocks", "date")
     # ### end Alembic commands ###
 
@@ -100,7 +100,7 @@ def downgrade() -> None:
     op.drop_column("stocks", "name")
     # Re-add the dropped columns in 'stocks' table
     op.add_column("stocks", sa.Column("date", sa.DATETIME(), nullable=True))
-    op.add_column("stocks", sa.Column("close_price", sa.FLOAT(), nullable=True))
+    op.add_column("stocks", sa.Column("close", sa.FLOAT(), nullable=True))
 
 
     # ### end Alembic commands ###

@@ -22,7 +22,7 @@ def mock_stock():
         'name': 'Apple',
         'industry': 'Technology',
         'sector': 'Consumer Electronics',
-        'close_price': 150.0,
+        'close': 150.0,
         'date': '2023-01-01'
     }
     

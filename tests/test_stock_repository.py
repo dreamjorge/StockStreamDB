@@ -26,7 +26,7 @@ def test_stock_repository_abstract_methods():
 
     # Call the mocked method with all required arguments
     stock_repo.create_stock(Stock(
-        ticker="AAPL", name="Apple", industry="Technology", sector="Consumer Electronics", close_price=150.0, date="2023-09-01"
+        ticker="AAPL", name="Apple", industry="Technology", sector="Consumer Electronics", close=150.0, date="2023-09-01"
     ))
     stock_repo.delete_stock("AAPL")
     stock_repo.get_stock_data("AAPL", "2023-01-01", "2023-09-01")

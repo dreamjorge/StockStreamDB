@@ -17,7 +17,7 @@ class ConcreteStocksRepository(StockRepository):
         ).all()
 
         # Convert query results to DataFrame for aggregation
-        data = [{'date': result.date, 'price': result.close_price} for result in query]  # Ensure 'close_price' is used correctly
+        data = [{'date': result.date, 'price': result.close} for result in query]  # Ensure 'close' is used correctly
         df = pd.DataFrame(data)
 
         # Check if the DataFrame is empty

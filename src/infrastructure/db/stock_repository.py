@@ -17,11 +17,11 @@ class StockRepository:
                     return None
 
                 # Format the date to 'YYYY-MM-DD'
-                close_price = stock_data['Close'].iloc[-1]
+                close = stock_data['Close'].iloc[-1]
                 date = stock_data.index[-1].strftime('%Y-%m-%d')
 
                 # Return the close price and date
-                return {'close': close_price, 'date': date}
+                return {'close': close, 'date': date}
             
             except RequestException as e:
                 print(f"Connection error while attempting to fetch data for {ticker}. Retrying ({attempt+1}/{retries})...")

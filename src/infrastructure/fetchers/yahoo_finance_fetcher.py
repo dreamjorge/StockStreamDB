@@ -1,24 +1,59 @@
-# src/infrastructure/fetchers/yahoo_finance_fetcher.py
-
 import yfinance as yf
-from src.repositories.stock_fetcher import StockFetcher
+import pandas as pd  # <-- Ensure pandas is imported
+from typing import List, Dict, Union, Optional
+import logging
 
-class YahooFinanceFetcher(StockFetcher):
+class YahooFinanceFetcher:
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
 
-    def fetch(self, ticker: str, period: str):
-        # Use yfinance to fetch data
-        stock_data = yf.Ticker(ticker).history(period=period)
-        
-        if stock_data.empty:
+    def fetch(self, ticker: str, period: str = '1mo', interval: str = '1d', return_format: str = 'list') -> Union[List[Dict], Dict[str, Dict], Optional[pd.DataFrame]]:
+        try:
+            stock_data = yf.Ticker(ticker).history(period=period, interval=interval)
+            if stock_data.empty:
+                self.logger.warning(f"No data found for ticker: {ticker}")
+                return []
+
+            if return_format == 'list':
+                return self._to_list(ticker, stock_data)
+            elif return_format == 'dict':
+                return self._to_dict(ticker, stock_data)
+            elif return_format == 'dataframe':
+                return stock_data
+            else:
+                raise ValueError(f"Unsupported return_format: {return_format}")
+
+        except ValueError as ve:
+            # Allow ValueError to propagate for unsupported formats
+            raise ve
+        except Exception as e:
+            self.logger.error(f"Failed to fetch data for {ticker}: {e}")
             return None
-        
-        # Return the most recent stock data as a dictionary
+
+
+    def _to_list(self, ticker: str, stock_data: pd.DataFrame) -> List[Dict]:
+        return [
+            {
+                'ticker': ticker,
+                'date': index.strftime('%Y-%m-%d'),
+                'close': row.get('Close', None),
+                'open': row.get('Open', None),
+                'high': row.get('High', None),
+                'low': row.get('Low', None),
+                'volume': row.get('Volume', None)
+            }
+            for index, row in stock_data.iterrows()
+        ]
+
+    def _to_dict(self, ticker: str, stock_data: pd.DataFrame) -> Dict[str, Dict]:
         return {
-            'ticker': ticker,
-            'close_price': stock_data['Close'].iloc[-1],
-            'date': stock_data.index[-1].strftime('%Y-%m-%d'),
-            'open': stock_data['Open'].iloc[-1],
-            'high': stock_data['High'].iloc[-1],
-            'low': stock_data['Low'].iloc[-1],
-            'volume': stock_data['Volume'].iloc[-1],
+            index.strftime('%Y-%m-%d'): {
+                'ticker': ticker,
+                'close': row.get('Close', None),
+                'open': row.get('Open', None),
+                'high': row.get('High', None),
+                'low': row.get('Low', None),
+                'volume': row.get('Volume', None)
+            }
+            for index, row in stock_data.iterrows()
         }

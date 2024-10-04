@@ -27,7 +27,7 @@ def upgrade():
         sa.Column('name', sa.String(), nullable=True),
         sa.Column('industry', sa.String(), nullable=True),
         sa.Column('sector', sa.String(), nullable=True),
-        sa.Column('close_price', sa.Float(), nullable=True),
+        sa.Column('close', sa.Float(), nullable=True),
         sa.Column('open', sa.Float(), nullable=True),
         sa.Column('high', sa.Float(), nullable=True),
         sa.Column('low', sa.Float(), nullable=True),

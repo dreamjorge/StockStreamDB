@@ -17,15 +17,15 @@ def main():
     parser.add_argument('--name', help="Stock name")  # No longer required
     parser.add_argument('--industry', help="Industry")  # No longer required
     parser.add_argument('--sector', help="Sector")  # No longer required
-    parser.add_argument('--close_price', type=float, help="Close price")
+    parser.add_argument('--close', type=float, help="Close price")
     parser.add_argument('--date', help="Date (YYYY-MM-DD)")  # No longer required
 
     args = parser.parse_args()
 
     # Conditionally check for required arguments based on the action
     if args.action == 'create':
-        if not all([args.name, args.industry, args.sector, args.close_price, args.date]):
-            parser.error("The following arguments are required for 'create': --name, --industry, --sector, --close_price, --date")
+        if not all([args.name, args.industry, args.sector, args.close, args.date]):
+            parser.error("The following arguments are required for 'create': --name, --industry, --sector, --close, --date")
     
     repository = StockRepositoryImpl()
     stock_use_case = ManageStockUseCase(stock_repository=repository)
@@ -36,7 +36,7 @@ def main():
             name=args.name,
             industry=args.industry,
             sector=args.sector,
-            close_price=args.close_price,
+            close=args.close,
             date=args.date
         )
     elif args.action == 'update':
@@ -45,7 +45,7 @@ def main():
             name=args.name,
             industry=args.industry,
             sector=args.sector,
-            close_price=args.close_price,
+            close=args.close,
             date=args.date
         )
     elif args.action == 'delete':
