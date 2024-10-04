@@ -1,15 +1,6 @@
-"""Add autoincrement to stocks.id
-
-Revision ID: bf17a92c72f8
-Revises: fb225cc14cd2
-Create Date: 2024-10-02 01:31:26.867723
-
-"""
-
 from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
-
 
 # revision identifiers, used by Alembic.
 revision: str = "bf17a92c72f8"
@@ -54,22 +45,12 @@ def drop_and_rename_table(old_table: str, new_table: str):
 
 
 def upgrade():
-    # Create a temporary table with autoincrement
     create_stocks_table('stocks_new', autoincrement=True)
-
-    # Copy data from old table to new table
     copy_table_data('stocks', 'stocks_new')
-
-    # Drop old table and rename the new one
     drop_and_rename_table('stocks', 'stocks_new')
 
 
 def downgrade():
-    # Recreate the old table without autoincrement
     create_stocks_table('stocks_old', autoincrement=False)
-
-    # Copy data back to the old schema
     copy_table_data('stocks', 'stocks_old')
-
-    # Drop current table and rename the old one
     drop_and_rename_table('stocks', 'stocks_old')
