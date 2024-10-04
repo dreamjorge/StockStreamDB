@@ -58,4 +58,8 @@ def downgrade():
     create_stocks_table('stocks_old', autoincrement=False)
 
     # Copy data back to the old schema
-    manage_table_operations('
+    manage_table_operations('stocks', 'stocks_old', operation="copy")
+
+    # Drop current table and rename the old one
+    manage_table_operations('stocks', 'stocks', operation="drop")
+    manage_table_operations('stocks_old', 'stocks', operation="rename")
