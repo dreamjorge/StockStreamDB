@@ -1,21 +1,21 @@
 import pytest
 from unittest.mock import MagicMock
 from datetime import datetime
-from src.repositories.concrete_stocks_repository import ConcreteStocksRepository
-from src.domain.models.stock import Stock
+from src.infrastructure.db.concrete_stocks_repository import ConcreteStocksRepository
 from src.interfaces.common.enums import Granularity
 import pandas as pd
 from unittest.mock import call, ANY
 from sqlalchemy.orm.exc import NoResultFound
-
+from src.infrastructure.db.models import Stock  # Import the Stock model
 # Fixtures for the mock session and repository
+
 @pytest.fixture
 def mock_session():
     return MagicMock()
 
 @pytest.fixture
 def stock_repository(mock_session):
-    return ConcreteStocksRepository(session=mock_session)
+    return ConcreteStocksRepository(session=mock_session)  # Pass mock session here
 
 # Sample stock data
 @pytest.fixture
@@ -95,30 +95,31 @@ def test_create_stock(stock_repository, mock_session, sample_stock):
     mock_session.commit.assert_called_once()
 
 def test_delete_stock_existing(stock_repository, mock_session, sample_stock):
-    # Mock the query to return a stock
-    mock_session.query().filter().first.return_value = sample_stock
+    # Mock the query to return the actual sample stock
+    mock_session.query().filter_by().first.return_value = sample_stock
 
     # Call the delete_stock method
     stock_repository.delete_stock('AAPL')
 
-    # Assert that session.delete and session.commit were called
+    # Assert that session.delete and session.commit were called with the correct stock
     mock_session.delete.assert_called_once_with(sample_stock)
     mock_session.commit.assert_called_once()
 
+
 def test_delete_stock_non_existing(stock_repository, mock_session):
-    # Mock the query to return None
-    mock_session.query().filter().first.return_value = None
+    # Mock the query to return None (no stock found)
+    mock_session.query().filter_by().first.return_value = None
 
     # Call the delete_stock method
     stock_repository.delete_stock('AAPL')
 
-    # Assert that session.delete and session.commit were not called
+    # Assert that session.delete was not called
     mock_session.delete.assert_not_called()
     mock_session.commit.assert_not_called()
 
 def test_get_existing_stock(stock_repository, mock_session, sample_stock):
     # Mock the query to return the sample stock
-    mock_session.query().filter().first.return_value = sample_stock
+    mock_session.query().filter_by().first.return_value = sample_stock
 
     # Call the get method
     result = stock_repository.get('AAPL')
@@ -126,15 +127,18 @@ def test_get_existing_stock(stock_repository, mock_session, sample_stock):
     # Assert that the result is the sample stock
     assert result == sample_stock
 
+
 def test_get_non_existing_stock(stock_repository, mock_session):
-    # Mock the query to return None
-    mock_session.query().filter().first.return_value = None
+    # Mock the query to return None (no stock found)
+    mock_session.query().filter_by().first.return_value = None
 
     # Call the get method
     result = stock_repository.get('AAPL')
 
     # Assert that the result is None
     assert result is None
+
+
 
 def test_save_stock(stock_repository, mock_session, sample_stock):
     # Call the save method

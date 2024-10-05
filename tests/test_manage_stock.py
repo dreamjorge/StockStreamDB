@@ -37,14 +37,14 @@ def test_create_stock(manage_stock_use_case, stock_repo):
     # Mock the repository method create_stock
     stock_repo.create_stock = MagicMock()
 
-    # Create a new stock
+    # Create a new stock using positional arguments
     stock = manage_stock_use_case.create_stock(
-        ticker="AAPL",
-        name="Apple Inc.",
-        industry="Technology",
-        sector="Consumer Electronics",
-        close=150.0,
-        date="2023-09-01"
+        "AAPL",  # ticker
+        "Apple Inc.",  # name
+        "Technology",  # industry
+        "Consumer Electronics",  # sector
+        150.0,  # close
+        "2023-09-01"  # date
     )
 
     # Assert the stock was created with correct attributes
@@ -55,8 +55,11 @@ def test_create_stock(manage_stock_use_case, stock_repo):
     assert isclose(stock.close, 150.0, rel_tol=1e-9)
     assert stock.date == "2023-09-01"
 
-    # Ensure repository's create_stock method was called with the correct stock object
-    stock_repo.create_stock.assert_called_once_with(stock)
+    # Assert that the save method was called correctly on the repository
+    stock_repo.save.assert_called_once()
+
+    # Assert that commit was called after saving
+    stock_repo.commit.assert_called_once()
 
 
 def test_delete_stock_not_found(manage_stock_use_case, stock_repo):

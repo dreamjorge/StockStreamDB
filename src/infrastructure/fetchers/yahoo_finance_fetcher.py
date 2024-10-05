@@ -1,59 +1,50 @@
 import yfinance as yf
-import pandas as pd  # <-- Ensure pandas is imported
-from typing import List, Dict, Union, Optional
-import logging
-from src.repositories.stock_fetcher import StockFetcher
-class YahooFinanceFetcher(StockFetcher):
-    def __init__(self):
-        self.logger = logging.getLogger(__name__)
+import pandas as pd
 
-    def fetch(self, ticker: str, period: str = '1mo', interval: str = '1d', return_format: str = 'list') -> Union[List[Dict], Dict[str, Dict], Optional[pd.DataFrame]]:
+class YahooFinanceFetcher:
+    def fetch(self, ticker, return_format='dataframe'):
         try:
-            stock_data = yf.Ticker(ticker).history(period=period, interval=interval)
-            if stock_data.empty:
-                self.logger.warning(f"No data found for ticker: {ticker}")
-                return []
-
-            if return_format == 'list':
-                return self._to_list(ticker, stock_data)
-            elif return_format == 'dict':
-                return self._to_dict(ticker, stock_data)
-            elif return_format == 'dataframe':
-                return stock_data
-            else:
-                raise ValueError(f"Unsupported return_format: {return_format}")
-
-        except ValueError as ve:
-            # Allow ValueError to propagate for unsupported formats
-            raise ve
+            stock = yf.Ticker(ticker)
+            stock_data = stock.history()
         except Exception as e:
-            self.logger.error(f"Failed to fetch data for {ticker}: {e}")
+            print(f"Network error occurred: {e}")
             return None
 
+        # Return None if data is empty
+        if stock_data.empty:
+            return None
+        
+        stock_data = stock_data.reset_index().rename(columns={'Date': 'date'})
+        stock_data['date'] = pd.to_datetime(stock_data['date'])
+        stock_data.columns = [col.lower() for col in stock_data.columns]
 
-    def _to_list(self, ticker: str, stock_data: pd.DataFrame) -> List[Dict]:
-        return [
-            {
-                'ticker': ticker,
-                'date': index.strftime('%Y-%m-%d'),
-                'close': row.get('Close', None),
-                'open': row.get('Open', None),
-                'high': row.get('High', None),
-                'low': row.get('Low', None),
-                'volume': row.get('Volume', None)
+        # Handle different return formats
+        if return_format == 'dataframe':
+            return stock_data[['date', 'open', 'high', 'low', 'close', 'volume']]
+        elif return_format == 'list':
+            return [
+                {
+                    'ticker': ticker,
+                    'date': row['date'].strftime('%Y-%m-%d'),
+                    'open': row['open'],
+                    'high': row['high'],
+                    'low': row['low'],
+                    'close': row['close'],
+                    'volume': row.get('volume', None)
+                }
+                for _, row in stock_data.iterrows()
+            ]
+        elif return_format == 'dict':
+            return {
+                row['date'].strftime('%Y-%m-%d'): {
+                    'ticker': ticker,
+                    'open': row['open'],
+                    'high': row['high'],
+                    'low': row['low'],
+                    'close': row['close'],
+                    'volume': row.get('volume', None)
+                }
+                for _, row in stock_data.iterrows()
             }
-            for index, row in stock_data.iterrows()
-        ]
-
-    def _to_dict(self, ticker: str, stock_data: pd.DataFrame) -> Dict[str, Dict]:
-        return {
-            index.strftime('%Y-%m-%d'): {
-                'ticker': ticker,
-                'close': row.get('Close', None),
-                'open': row.get('Open', None),
-                'high': row.get('High', None),
-                'low': row.get('Low', None),
-                'volume': row.get('Volume', None)
-            }
-            for index, row in stock_data.iterrows()
-        }
+        else:
+            raise ValueError("Unsupported return_format")
