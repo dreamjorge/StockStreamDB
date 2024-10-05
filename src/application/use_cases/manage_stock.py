@@ -10,7 +10,10 @@ class ManageStockUseCase:
         self.stock_fetcher = stock_fetcher
 
     def create_stock(self, ticker, name, industry, sector, close, date):
-        """Create a new stock entry."""
+        if not self.validate_stock(ticker):
+            raise ValueError("Invalid stock")
+
+        # Assuming Stock is a class from your domain models
         stock = Stock(
             ticker=ticker,
             name=name,
@@ -19,9 +22,13 @@ class ManageStockUseCase:
             close=close,
             date=date
         )
-        self.stock_repo.create_stock(stock)  # Use create_stock instead of add
-        self.stock_repo.commit()
-        return stock
+        
+        # Save the stock to the repository
+        self.stock_repo.save(stock)
+        self.stock_repo.commit()  # Commit the transaction after saving
+        
+        return stock  # Return the newly created stock
+
 
     def fetch_and_store_stock(self, ticker: str, period: str):
         """Fetch stock data and store it in the repository."""
@@ -73,3 +80,7 @@ class ManageStockUseCase:
     
     def fetch_stock_data(self, ticker: str, period: str):
         return self.stock_fetcher.fetch(ticker, period)
+    
+    def validate_stock(self, stock):
+        # Business logic for validating stock
+        return True    

@@ -14,6 +14,7 @@ class Stock(Base):
     close = Column(Float)
     market_cap = Column(Float)
     pe_ratio = Column(Float)
+    date = Column(Date)  # Make sure this exists!
 
 
     prices = relationship("StockPrice", back_populates="stock")
