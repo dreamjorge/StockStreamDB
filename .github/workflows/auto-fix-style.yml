@@ -20,7 +20,9 @@ jobs:
           git config --local user.name "GitHub Action"
           git config --local user.email "action@github.com"
           git add .
-          git commit -m "feat(CI): Auto-fix code style issues with Black"
+          git commit -m "chore(auto-fix): auto-fix code style issues with Black" || echo "No changes to commit"
       - name: Push changes
         run: |
           git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
