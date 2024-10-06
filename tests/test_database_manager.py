@@ -8,6 +8,9 @@ from stock_data_fetcher import DatabaseManager  # Adjust import as per your scri
 import logging  # Add this import
 from unittest.mock import MagicMock
 from src.infrastructure.db.db_setup import init_db  # Change to init_db
+import tempfile
+import shutil
+
 
 @pytest.fixture
 def mock_engine():
@@ -20,7 +23,7 @@ def temp_db():
     Creates a temporary database file for testing.
     """
     temp_dir = tempfile.mkdtemp()
-    db_path = os.path.join(temp_dir, 'test_stock_news.db')
+    db_path = os.path.join(temp_dir, "test_stock_news.db")
 
     # Yield the path to be used in the test
     yield db_path
@@ -32,42 +35,48 @@ def temp_db():
             conn.close()
     except Exception as e:
         logging.error(f"Error closing the database connection: {e}")
-    
+
     shutil.rmtree(temp_dir)
+
 
 # Fixture for setting up and tearing down the database
 @pytest.fixture
 def db_manager():
     # Use an in-memory SQLite database for testing
-    manager = DatabaseManager(db_name=':memory:')
+    manager = DatabaseManager(db_name=":memory:")
     yield manager
     manager.close()
 
+
 def test_create_table(db_manager):
     # Check if the table exists
-    db_manager.cursor.execute("""
+    db_manager.cursor.execute(
+        """
         SELECT name FROM sqlite_master WHERE type='table' AND name='stock_prices';
-    """)
+    """
+    )
     table_exists = db_manager.cursor.fetchone()
     assert table_exists is not None, "Table 'stock_prices' should exist."
 
+
 def test_insert_data(db_manager):
     # Sample data
-    symbol = 'TEST'
+    symbol = "TEST"
     timestamp = datetime.now().replace(microsecond=0)
     data = {
-        'Datetime': [timestamp],
-        'Open': [100.0],
-        'High': [110.0],
-        'Low': [90.0],
-        'Close': [105.0],
-        'Volume': [1000]
+        "Datetime": [timestamp],
+        "Open": [100.0],
+        "High": [110.0],
+        "Low": [90.0],
+        "Close": [105.0],
+        "Volume": [1000],
     }
     import pandas as pd
+
     df = pd.DataFrame(data)
 
     # Insert the data
-    db_manager.insert_bulk_data(symbol, df, 'YahooFinance')
+    db_manager.insert_bulk_data(symbol, df, "YahooFinance")
 
     # Fetch the inserted data to verify
     db_manager.cursor.execute("SELECT * FROM stock_prices WHERE symbol = ?", (symbol,))
@@ -85,21 +94,22 @@ def test_insert_data(db_manager):
 
 def test_duplicate_handling(db_manager):
     # Initial data
-    symbol = 'TEST'
+    symbol = "TEST"
     timestamp = datetime.now().replace(microsecond=0)
     data = {
-        'Datetime': [timestamp],
-        'Open': [100.0],
-        'High': [110.0],
-        'Low': [90.0],
-        'Close': [105.0],
-        'Volume': [1000]
+        "Datetime": [timestamp],
+        "Open": [100.0],
+        "High": [110.0],
+        "Low": [90.0],
+        "Close": [105.0],
+        "Volume": [1000],
     }
     import pandas as pd
+
     df = pd.DataFrame(data)
 
     # Use insert_bulk_data instead of insert_data
-    db_manager.insert_bulk_data(symbol, df, 'YahooFinance')
+    db_manager.insert_bulk_data(symbol, df, "YahooFinance")
 
     # Add assertions here to verify that the data was inserted correctly
     rows = db_manager.cursor.execute("SELECT * FROM stock_prices").fetchall()
@@ -110,7 +120,6 @@ def test_close(db_manager):
     db_manager.close()
     with pytest.raises(sqlite3.ProgrammingError):
         db_manager.cursor.execute("SELECT 1;")
-
 
 
 def test_db_setup_initialization():

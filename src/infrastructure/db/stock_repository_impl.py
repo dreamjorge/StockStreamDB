@@ -46,18 +46,18 @@ class StockRepositoryImpl(StockRepository):
             return True
         return False
 
-    def get_stock_data(self, ticker: str, start: datetime, end: datetime, granularity: str = None) -> List[Stock]:
+    def get_stock_data(
+        self, ticker: str, start: datetime, end: datetime, granularity: str = None
+    ) -> List[Stock]:
         query = self.session.query(Stock).filter(
-            Stock.ticker == ticker,
-            Stock.date >= start,
-            Stock.date <= end
+            Stock.ticker == ticker, Stock.date >= start, Stock.date <= end
         )
-    
+
         # Optional granularity-based logic
-        if granularity == 'daily':
+        if granularity == "daily":
             # Add any specific logic for daily granularity here if needed
             pass
-        
+
         return query.all()
 
     def get_by_ticker(self, ticker: str) -> Stock:
@@ -68,9 +68,7 @@ class StockRepositoryImpl(StockRepository):
         """Check if stock data for the given ticker and period exists."""
         start_date, end_date = self.get_date_range_for_period(period)
         query = self.session.query(Stock).filter(
-            Stock.ticker == ticker,
-            Stock.date >= start_date,
-            Stock.date <= end_date
+            Stock.ticker == ticker, Stock.date >= start_date, Stock.date <= end_date
         )
         return self.session.query(query.exists()).scalar()
 
@@ -78,19 +76,19 @@ class StockRepositoryImpl(StockRepository):
         """Helper method to calculate the date range based on the period."""
         today = datetime.now().date()
 
-        if period == '1y':
+        if period == "1y":
             start_date = today - timedelta(days=365)
-        elif period == '1m':
+        elif period == "1m":
             start_date = today - timedelta(days=30)
-        elif period == '1d':
+        elif period == "1d":
             start_date = today - timedelta(days=1)
-        elif period == '1mo':
+        elif period == "1mo":
             start_date = today - timedelta(days=30)
         else:
             raise ValueError(f"Invalid period: {period}")
 
         return start_date, today
-    
+
     def get_sample_stock_data(self, ticker: str):
         return self.session.query(Stock).filter_by(ticker=ticker).limit(5).all()
 
@@ -100,4 +98,3 @@ class StockRepositoryImpl(StockRepository):
 
     def commit(self):
         self.session.commit()
-

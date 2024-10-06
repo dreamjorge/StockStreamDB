@@ -22,22 +22,21 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade():
     # Create the stocks table
     op.create_table(
-        'stocks',
-        sa.Column('ticker', sa.String(), nullable=False, primary_key=True),
-        sa.Column('name', sa.String(), nullable=True),
-        sa.Column('industry', sa.String(), nullable=True),
-        sa.Column('sector', sa.String(), nullable=True),
-        sa.Column('close', sa.Float(), nullable=True),
-        sa.Column('open', sa.Float(), nullable=True),
-        sa.Column('high', sa.Float(), nullable=True),
-        sa.Column('low', sa.Float(), nullable=True),
-        sa.Column('close', sa.Float(), nullable=True),
-        sa.Column('volume', sa.Float(), nullable=True),
-        sa.Column('date', sa.DateTime(), nullable=True),
+        "stocks",
+        sa.Column("ticker", sa.String(), nullable=False, primary_key=True),
+        sa.Column("name", sa.String(), nullable=True),
+        sa.Column("industry", sa.String(), nullable=True),
+        sa.Column("sector", sa.String(), nullable=True),
+        sa.Column("close", sa.Float(), nullable=True),
+        sa.Column("open", sa.Float(), nullable=True),
+        sa.Column("high", sa.Float(), nullable=True),
+        sa.Column("low", sa.Float(), nullable=True),
+        sa.Column("close", sa.Float(), nullable=True),
+        sa.Column("volume", sa.Float(), nullable=True),
+        sa.Column("date", sa.DateTime(), nullable=True),
     )
+
 
 def downgrade():
     # Drop the stocks table
-    op.drop_table('stocks')
-
-
+    op.drop_table("stocks")

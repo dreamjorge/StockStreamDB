@@ -1,8 +1,7 @@
 from domain.models.stock import Stock
-from datetime import datetime
-from datetime import timedelta
 from domain.stock_fetcher import StockFetcher
 from infrastructure.db.stock_repository_impl import StockRepositoryImpl
+
 
 class ManageStockUseCase:
     def __init__(self, stock_repo: StockRepositoryImpl, stock_fetcher: StockFetcher):
@@ -20,15 +19,14 @@ class ManageStockUseCase:
             industry=industry,
             sector=sector,
             close=close,
-            date=date
+            date=date,
         )
-        
+
         # Save the stock to the repository
         self.stock_repo.save(stock)
         self.stock_repo.commit()  # Commit the transaction after saving
-        
-        return stock  # Return the newly created stock
 
+        return stock  # Return the newly created stock
 
     def fetch_and_store_stock(self, ticker: str, period: str):
         """Fetch stock data and store it in the repository."""
@@ -36,15 +34,15 @@ class ManageStockUseCase:
         for stock_record in stock_data:
             stock = Stock(
                 ticker=ticker,
-                date=stock_record['date'],
-                close=stock_record['close'],
-                open=stock_record['open'],
-                high=stock_record['high'],
-                low=stock_record['low'],
-                volume=stock_record['volume']
+                date=stock_record["date"],
+                close=stock_record["close"],
+                open=stock_record["open"],
+                high=stock_record["high"],
+                low=stock_record["low"],
+                volume=stock_record["volume"],
             )
             self.stock_repo.save(stock)
-            
+
     def delete_stock(self, ticker):
         """Delete a stock by its ticker."""
         stock = self.stock_repo.get_by_ticker(ticker)
@@ -77,10 +75,10 @@ class ManageStockUseCase:
     def check_stock_exists(self, ticker, period):
         """Check if stock data for the ticker and period already exists."""
         return self.stock_repo.stock_exists(ticker, period)
-    
+
     def fetch_stock_data(self, ticker: str, period: str):
         return self.stock_fetcher.fetch(ticker, period)
-    
+
     def validate_stock(self, stock):
         # Business logic for validating stock
-        return True    
+        return True
