@@ -5,3 +5,7 @@ src/utils/github_issue_creator/.env
 /flake8_report
 radon_complexity_report.txt
 .coverage
+/node_modules
+/node_modules
+/.venv
+/node_modules

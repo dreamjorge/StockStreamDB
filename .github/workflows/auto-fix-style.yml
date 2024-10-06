@@ -1,0 +1,26 @@
+name: Auto-fix Code Style
+on: push
+jobs:
+  auto-fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      - name: Install dependencies
+        run: |
+          pip install black
+      - name: Auto-fix Python code with Black
+        run: |
+          black --line-length 79 .
+      - name: Commit changes
+        run: |
+          git config --local user.name "GitHub Action"
+          git config --local user.email "action@github.com"
+          git add .
+          git commit -m "feat(CI): Auto-fix code style issues with Black"
+      - name: Push changes
+        run: |
+          git push
