@@ -21,8 +21,8 @@ def check_data(ticker):
         if data:
             for stock in data:
                 click.echo(
-                    f"Ticker: {stock.ticker}, Date: {
-                        stock.date}, Close Price: {stock.close}"
+                    f"Ticker: {stock.ticker}, Date: \
+                    {stock.date}, Close Price: {stock.close}"
                 )
         else:
             click.echo(f"No data found for ticker {ticker}")

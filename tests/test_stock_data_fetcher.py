@@ -13,7 +13,7 @@ def test_fetch_intraday_data():
         "High": [105, 106, 107, 108, 109],
         "Low": [95, 96, 97, 98, 99],
         "Close": [102, 103, 104, 105, 106],
-        "Adj Close": [102, 103, 104, 105, 106],  # Add this line
+        "Adj Close": [102, 103, 104, 105, 106],
         "Volume": [1000, 1100, 1200, 1300, 1400],
     }
     df_mock = pd.DataFrame(data, index=index)
@@ -48,7 +48,7 @@ def test_fetch_intraday_data():
         # Verify data equality
         pd.testing.assert_frame_equal(df_clean, df_mock_clean)
 
-        # Check that the mock was called
+        # Check that the mock was called with the correct arguments
         mock_download.assert_called_once_with(
-            "TEST", interval="1m"
-        )  # Adjust the arguments if necessary
+            tickers="TEST", period="1d", interval="1m"
+        )

@@ -24,8 +24,8 @@ class StockRepository:
 
             except RequestException as e:
                 print(
-                    f"Connection error while attempting to fetch data for {
-                        ticker}. Retrying ({attempt + 1}/{retries})..."
+                    f"Connection error while attempting to fetch data for \
+                        {ticker}. Retrying ({attempt + 1}/{retries})..."
                 )
                 print(e)
                 attempt += 1
@@ -42,7 +42,7 @@ class StockRepository:
                 return None
 
         print(
-            f"Connection error: Failed to retrieve data for {
-                ticker} after {retries} attempts."
+            f"Connection error: Failed to retrieve data \
+                for {ticker} after {retries} attempts."
         )
         return None

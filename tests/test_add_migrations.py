@@ -7,8 +7,10 @@ import importlib.util
 # Dynamically import the migration script
 def load_migration_module():
     module_name = "migration_14f96da0ec16_add_id_column_to_stocks_table"
-    file_path = "src/infrastructure/db/migrations/versions \
-                /14f96da0ec16_add_id_column_to_stocks_table.py"
+    file_path = (
+        "src/infrastructure/db/migrations/versions/"
+        "14f96da0ec16_add_id_column_to_stocks_table.py"
+    )
     spec = importlib.util.spec_from_file_location(module_name, file_path)
     migration_module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(migration_module)
@@ -39,8 +41,8 @@ def test_upgrade_adds_columns(connection):
 
     # Mock the Alembic op object
     with mock.patch(
-        "src.infrastructure.db.migrations.versions\
-          .14f96da0ec16_add_id_column_to_stocks_table.op"
+        "src.infrastructure.db.migrations.versions."
+        "14f96da0ec16_add_id_column_to_stocks_table.op"
     ) as mocked_op:
         # Apply the upgrade migration
         migration_module.upgrade(mocked_op)
@@ -56,8 +58,8 @@ def test_downgrade_removes_columns(connection):
 
     # Mock the Alembic op object
     with mock.patch(
-        "src.infrastructure.db.migrations.versions\
-          .14f96da0ec16_add_id_column_to_stocks_table.op"
+        "src.infrastructure.db.migrations.versions."
+        "14f96da0ec16_add_id_column_to_stocks_table.op"
     ) as mocked_op:
         # Apply the upgrade migration
         migration_module.upgrade(mocked_op)

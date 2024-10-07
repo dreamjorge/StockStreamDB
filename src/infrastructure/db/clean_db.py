@@ -10,12 +10,14 @@ from src.infrastructure.db.stock_repository_impl import (
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/../../../")
 
-# Create the engine and session (adjust your database URL accordingly)
+# Create the engine and session
+# (adjust your database URL accordingly)
 # Replace with your actual database URL
 DATABASE_URL = "sqlite:///src/infrastructure/db/database.db"
 engine = create_engine(DATABASE_URL)
 
-# Bind the engine to the metadata of the Base class so that the
+# Bind the engine to the metadata of the Base class so
+# that the
 # declarative models can be accessed
 Base.metadata.bind = engine
 

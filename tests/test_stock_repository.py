@@ -87,7 +87,9 @@ def test_update_stock(stock_repository, mock_stock):
     )
     stock_repository.update = MagicMock(return_value=updated_stock)
     stock = stock_repository.update(updated_stock)
-    assert stock.close == 155.0
+    assert stock.close == pytest.approx(
+        155.0, rel=1e-9
+    ), "Close price should be approximately 155.0"
     stock_repository.update.assert_called_once_with(updated_stock)
 
 

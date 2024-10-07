@@ -172,8 +172,8 @@ class NewsDatabaseManager:
                         "%Y-%m-%d %H:%M:%S"
                     )
                     print(
-                        f"ID: {row[0]}, Symbol: {row[1]}, Headline: {
-                            row[2]}, Source: {row[3]}, Date: {date_str}"
+                        f"ID: {row[0]}, Symbol: {row[1]}, Headline: \
+                        {row[2]}, Source: {row[3]}, Date: {date_str}"
                     )
             else:
                 logging.info("No news data found in the database.")
@@ -261,8 +261,8 @@ def main():
             total_articles_added += inserted
 
             logging.info(
-                f"Inserted {inserted} new articles for {
-                    symbol} from {batch_from_date} to {batch_to_date}"
+                f"Inserted {inserted} new articles for \
+                {symbol} from {batch_from_date} to {batch_to_date}"
             )
 
             # Move to the next batch

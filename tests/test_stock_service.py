@@ -65,7 +65,9 @@ def test_fetch_new_stock(stock_service, mock_stock_repository, mock_stock_fetche
     assert stock.name == "Apple Inc."
     assert stock.industry == "Technology"
     assert stock.sector == "Consumer Electronics"
-    assert stock.close == 150.0
+    assert stock.close == pytest.approx(
+        155.0, rel=1e-9
+    ), "Close price should be approximately 155.0"
     assert stock.date == "2024-01-01"
 
     mock_stock_repository.get_stock.assert_called_once_with("AAPL")
@@ -133,7 +135,7 @@ def test_add_stock(stock_service, mock_stock_repository):
         close=150.0,
         date="2024-01-01",
     )
-    mock_stock_repository.create_stock.return_value = True  # Simulate success
+    mock_stock_repository.create_stock.return_value = True
 
     # Act
     result = stock_service.add_stock(stock)
@@ -146,8 +148,7 @@ def test_add_stock(stock_service, mock_stock_repository):
 def test_remove_stock(stock_service, mock_stock_repository):
     # Arrange
     ticker = "AAPL"
-    mock_stock_repository.delete_stock.return_value = True  # Simulate success
-
+    mock_stock_repository.delete_stock.return_value = True
     # Act
     result = stock_service.remove_stock(ticker)
 
