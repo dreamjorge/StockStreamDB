@@ -3,6 +3,8 @@ on: push
 jobs:
   auto-fix:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Add this to ensure the job has the necessary permissions
     steps:
       - uses: actions/checkout@v2
 
