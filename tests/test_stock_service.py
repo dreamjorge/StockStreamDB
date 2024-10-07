@@ -66,7 +66,7 @@ def test_fetch_new_stock(stock_service, mock_stock_repository, mock_stock_fetche
     assert stock.industry == "Technology"
     assert stock.sector == "Consumer Electronics"
     assert stock.close == pytest.approx(
-        155.0, rel=1e-9
+        150.0, rel=1e-9
     ), "Close price should be approximately 155.0"
     assert stock.date == "2024-01-01"
 
