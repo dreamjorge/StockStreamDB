@@ -39,7 +39,7 @@ Example commit message:
    - Ensure your branch is up-to-date with the latest `main`.
    - Open a PR and provide a clear description of the changes.
    - Ensure that your PR title follows the branch naming conventions.
-   
+
 2. **Await Review**:
    - Wait for one or more team members to review your PR.
    - Be open to feedback and be ready to make changes.

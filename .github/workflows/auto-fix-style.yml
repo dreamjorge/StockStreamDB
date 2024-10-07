@@ -1,0 +1,35 @@
+name: Auto-fix Code Style
+on: push
+jobs:
+  auto-fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Add this to ensure the job has the necessary permissions
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install black
+
+      - name: Auto-fix Python code with Black
+        run: |
+          black --line-length 88 .
+
+      - name: Commit changes
+        run: |
+          git config --local user.name "GitHub Action"
+          git config --local user.email "action@github.com"
+          git add .
+          git commit -m "chore(auto-fix): auto-fix code style issues with Black" || echo "No changes to commit"
+
+      - name: Push changes
+        run: |
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

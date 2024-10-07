@@ -1,12 +1,13 @@
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock
 from sqlalchemy.orm import Session
 from src.infrastructure.db.db_setup import init_db, get_session, Base, engine
+
 
 # Test for init_db function
 def test_init_db(mocker):
     # Mock the Base.metadata.create_all method to avoid creating actual tables
-    mock_create_all = mocker.patch.object(Base.metadata, 'create_all', autospec=True)
+    mock_create_all = mocker.patch.object(Base.metadata, "create_all", autospec=True)
 
     # Call the init_db function
     init_db()
@@ -21,7 +22,9 @@ def test_get_session_success(mocker):
     mock_session = MagicMock(spec=Session)
 
     # Patch the sessionmaker to return the mock session
-    mocker.patch('src.infrastructure.db.db_setup.SessionLocal', return_value=mock_session)
+    mocker.patch(
+        "src.infrastructure.db.db_setup.SessionLocal", return_value=mock_session
+    )
 
     # Use the context manager to get the session and simulate a successful transaction
     with get_session() as session:
@@ -39,7 +42,9 @@ def test_get_session_failure(mocker):
     mock_session = MagicMock(spec=Session)
 
     # Patch the sessionmaker to return the mock session
-    mocker.patch('src.infrastructure.db.db_setup.SessionLocal', return_value=mock_session)
+    mocker.patch(
+        "src.infrastructure.db.db_setup.SessionLocal", return_value=mock_session
+    )
 
     # Simulate an exception during the transaction
     with pytest.raises(Exception):

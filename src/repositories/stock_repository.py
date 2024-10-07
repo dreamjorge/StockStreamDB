@@ -5,8 +5,8 @@ from datetime import datetime
 from src.interfaces.common.enums import Granularity
 from typing import List
 
-class StockRepository(ABC):
 
+class StockRepository(ABC):
     @abstractmethod
     def create_stock(self, stock: Stock) -> Stock:
         pass
@@ -22,12 +22,17 @@ class StockRepository(ABC):
     @abstractmethod
     def delete_stock(self, ticker: str) -> bool:
         pass
-    
+
     @abstractmethod
     def save(self, stock):
         pass
 
     @abstractmethod
-    def get_stock_data(self, ticker: str, start_date: datetime, end_date: datetime, granularity: Granularity)-> List[Stock]:
+    def get_stock_data(
+        self,
+        ticker: str,
+        start_date: datetime,
+        end_date: datetime,
+        granularity: Granularity,
+    ) -> List[Stock]:
         """Retrieve stock data for a given period with a specified granularity."""
-        pass

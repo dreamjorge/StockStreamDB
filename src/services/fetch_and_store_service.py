@@ -2,6 +2,7 @@ from src.infrastructure.fetchers.yahoo_finance_fetcher import YahooFinanceFetche
 from src.infrastructure.db.stock_repository_impl import StockRepositoryImpl
 from src.domain.models.stock import Stock
 
+
 class FetchAndStoreStockService:
     def __init__(self, fetcher: YahooFinanceFetcher, stock_repo: StockRepositoryImpl):
         self.fetcher = fetcher
@@ -12,13 +13,13 @@ class FetchAndStoreStockService:
         if stock_data:
             for stock in stock_data:
                 stock_entity = Stock(
-                    ticker=stock['ticker'],
-                    date=stock['date'],
-                    close=stock['close'],
-                    open_price=stock['open'],
-                    high_price=stock['high'],
-                    low_price=stock['low'],
-                    volume=stock['volume']
+                    ticker=stock["ticker"],
+                    date=stock["date"],
+                    close=stock["close"],
+                    open_price=stock["open"],
+                    high_price=stock["high"],
+                    low_price=stock["low"],
+                    volume=stock["volume"],
                 )
                 self.stock_repo.create(stock_entity)
             print(f"Data for {ticker} stored successfully!")

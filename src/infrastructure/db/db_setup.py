@@ -14,11 +14,13 @@ engine = create_engine("sqlite:///src/infrastructure/db/database.db")
 # Create a configured "Session" class
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+
 def init_db():
     """Initialize the database by creating all tables."""
     # Import models here to avoid circular imports
-    from src.domain.models.stock import Stock
+
     Base.metadata.create_all(engine)
+
 
 @contextmanager
 def get_session():

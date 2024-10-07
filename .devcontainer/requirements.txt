@@ -12,4 +12,6 @@ python-dotenv
 PyGithub
 pytest-cov
 dependency_injector
- pytest-mock
+pytest-mock
+flake8==3.9.2
+importlib-metadata==4.13.0
