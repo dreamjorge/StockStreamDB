@@ -1,3 +1,13 @@
 *.pyc
 venv/
 src/utils/github_issue_creator/.env
+.coverage
+/flake8_report
+radon_complexity_report.txt
+.coverage
+/node_modules
+/node_modules
+/.venv
+/node_modules
+/node_modules
+/logs

@@ -1,19 +1,24 @@
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../../../')
-
-from src.infrastructure.db.db_setup import Base
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from src.infrastructure.db.db_setup import Base
-from src.infrastructure.db.stock_repository_impl import Stock  # Assuming this is where your Stock model is
+from src.infrastructure.db.stock_repository_impl import (
+    Stock,
+)  # Assuming this is where your Stock model is
 
-# Create the engine and session (adjust your database URL accordingly)
-DATABASE_URL =  'sqlite:///src/infrastructure/db/database.db'  # Replace with your actual database URL
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/../../../")
+
+# Create the engine and session
+# (adjust your database URL accordingly)
+# Replace with your actual database URL
+DATABASE_URL = "sqlite:///src/infrastructure/db/database.db"
 engine = create_engine(DATABASE_URL)
 
-# Bind the engine to the metadata of the Base class so that the declarative models can be accessed
+# Bind the engine to the metadata of the Base class so
+# that the
+# declarative models can be accessed
 Base.metadata.bind = engine
 
 # Create a configured "Session" class

@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from src.domain.models.stock import Stock
 
-class StockRepository(ABC):
 
+class StockRepository(ABC):
     @abstractmethod
     def create_stock(self, stock: Stock) -> Stock:
         pass
@@ -18,8 +18,7 @@ class StockRepository(ABC):
     @abstractmethod
     def delete_stock(self, ticker: str) -> bool:
         pass
-    
+
     @abstractmethod
     def save(self, stock):
         pass
-

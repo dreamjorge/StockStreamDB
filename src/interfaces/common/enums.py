@@ -1,10 +1,11 @@
 from enum import Enum
 
+
 class Granularity(Enum):
-    HOURLY = 'hourly'
-    DAILY = 'daily'
-    WEEKLY = 'weekly'
-    MONTHLY = 'monthly'
+    HOURLY = "hourly"
+    DAILY = "daily"
+    WEEKLY = "weekly"
+    MONTHLY = "monthly"
 
     @classmethod
     def list(cls):
@@ -14,12 +15,12 @@ class Granularity(Enum):
     def resample_rule(self):
         """Return the resampling rule for Pandas."""
         if self == Granularity.HOURLY:
-            return 'H'
+            return "H"
         elif self == Granularity.DAILY:
-            return 'D'
+            return "D"
         elif self == Granularity.WEEKLY:
-            return 'W'
+            return "W"
         elif self == Granularity.MONTHLY:
-            return 'M'
+            return "M"
         else:
             raise ValueError(f"Unsupported granularity: {self.value}")

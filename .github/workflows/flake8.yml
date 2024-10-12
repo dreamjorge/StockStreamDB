@@ -1,0 +1,49 @@
+name: Lint Code with Flake8
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 flake8-html
+
+      - name: Run flake8 and generate HTML report
+        run: |
+          mkdir -p flake8_report
+          flake8 --format=html --htmldir=flake8_report --count --exit-zero > flake8_report/flake8_report.txt
+
+      - name: Upload flake8 HTML report
+        uses: actions/upload-artifact@v3
+        with:
+          name: flake8-report
+          path: flake8_report
+
+      - name: Set Flake8 Warnings Threshold
+        run: |
+          max_warnings=2000  # Adjust this threshold
+          actual_warnings=$(flake8 --count | tail -n1 | awk '{print $1}')
+          if [ "$actual_warnings" -gt "$max_warnings" ]; then
+            echo "Too many warnings: $actual_warnings (threshold: $max_warnings)"
+            exit 1
+          else
+            echo "Flake8 passed with $actual_warnings warnings (threshold: $max_warnings)"
+          fi
