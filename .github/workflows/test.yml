@@ -33,17 +33,17 @@ jobs:
           coverage html  # Generate an HTML report
           coverage xml   # Generate an XML report for external tools
 
-      - name: Upload coverage report
+      - name: Upload coverage HTML report
         uses: actions/upload-artifact@v3
         with:
-          name: coverage-report
+          name: coverage-html-report
           path: htmlcov/  # Upload the HTML coverage report
 
-      - name: Verify coverage file exists
-        run: ls -la htmlcov/coverage.xml  # Use the actual path here
+      - name: Verify XML coverage file exists
+        run: ls -la coverage.xml  # Check in the root directory
 
       - name: Upload coverage to GitHub
         uses: orgoro/coverage@v3.2
         with:
-          coverageFile: htmlcov/coverage.xml
+          coverageFile: coverage.xml  # Use the correct path for the XML report
           token: ${{ secrets.GITHUB_TOKEN }}
