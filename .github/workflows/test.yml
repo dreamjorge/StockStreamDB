@@ -38,3 +38,9 @@ jobs:
         with:
           name: coverage-report
           path: htmlcov/  # Upload the HTML coverage report
+
+      - name: Upload coverage to GitHub
+        uses: orgoro/coverage@v3.2
+        with:
+          coverageFile: path/to/coverage.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
