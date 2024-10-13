@@ -25,17 +25,16 @@ def fix_unused_vars(file_path, line_number):
         lines = f.readlines()
 
     line = lines[line_number - 1]
-    # Detect assignment in the form of `variable = ...`
-    variable_match = re.search(r"(\w+)\s*=", line)
+    # Use a more specific and safe regex pattern to detect variable assignments
+    # Anchored at the start of the line
+    variable_match = re.search(r"^\s*(\w+)\s*=\s*", line)
     if variable_match:
         variable = variable_match.group(1)
         # Remove the line
         lines.pop(line_number - 1)
         with open(file_path, "w") as f:
             f.writelines(lines)
-        print(
-            f"Removed unused variable '{variable}' " f"from {file_path}:{line_number}"
-        )
+        print(f"Removed unused variable '{variable}' from {file_path}:{line_number}")
 
 
 def remove_unused_imports(file_path, line_number):
