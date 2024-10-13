@@ -1,7 +1,7 @@
 from dependency_injector import containers, providers
-from src.infrastructure.db.stock_repository_impl import StockRepositoryImpl
-from src.infrastructure.fetchers.yahoo_finance_fetcher import YahooFinanceFetcher
-from src.use_cases.stock_service import StockService  # Import your StockService
+from infrastructure.db.stock_repository_impl import StockRepositoryImpl
+from infrastructure.fetchers.yahoo_finance_fetcher import YahooFinanceFetcher
+from use_cases.stock_service import StockService  # Import your StockService
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from src.domain.models.stock import Stock
+from domain.models.stock import Stock
 
 
 class StockRepository(ABC):

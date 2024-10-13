@@ -1,6 +1,6 @@
-from src.repositories.stock_repository import StockRepository
-from src.domain.models.stock import Stock
-from src.infrastructure.fetchers.stock_fetcher import StockFetcher
+from repositories.stock_repository import StockRepository
+from domain.models.stock import Stock
+from infrastructure.fetchers.stock_fetcher import StockFetcher
 
 
 class StockService:
