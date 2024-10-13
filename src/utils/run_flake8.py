@@ -30,8 +30,7 @@ def run_flake8_and_fix():
             fix_long_lines(file_path, line_number)
         else:
             log_message(
-                f"Manual fix needed for {file_path}:"
-                f"{line_number} - {description}"
+                f"Manual fix needed for {file_path}:" f"{line_number} - {description}"
             )
 
 
