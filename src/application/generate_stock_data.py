@@ -7,6 +7,16 @@ from datetime import datetime, timedelta
 
 
 def generate_stock_data(ticker, start_date, end_date):
+    if start_date >= end_date:
+        # Return an empty DataFrame with the correct columns and dtypes
+        return pd.DataFrame(
+            {
+                "date": pd.Series([], dtype="datetime64[ns]"),
+                "ticker": pd.Series([], dtype="object"),
+                "price": pd.Series([], dtype="float64"),
+            }
+        )
+
     num_days = (end_date - start_date).days
     dates = pd.date_range(start=start_date, end=end_date - timedelta(days=1), freq="D")
     prices = (
@@ -16,10 +26,21 @@ def generate_stock_data(ticker, start_date, end_date):
 
 
 def save_stock_data_to_csv(tickers, start_date, end_date, output_file):
-    all_data = pd.concat(
-        [generate_stock_data(ticker, start_date, end_date) for ticker in tickers],
-        ignore_index=True,
-    )
+    if not tickers:
+        # If tickers list is empty, create an empty DataFrame with the correct columns
+        all_data = pd.DataFrame(
+            {
+                "date": pd.Series([], dtype="datetime64[ns]"),
+                "ticker": pd.Series([], dtype="object"),
+                "price": pd.Series([], dtype="float64"),
+            }
+        )
+    else:
+        # Generate stock data for each ticker
+        all_data = pd.concat(
+            [generate_stock_data(ticker, start_date, end_date) for ticker in tickers],
+            ignore_index=True,
+        )
     all_data.to_csv(output_file, index=False)
 
 

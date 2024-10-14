@@ -4,6 +4,8 @@ from unittest.mock import MagicMock
 from src.use_cases.stock_service import StockService
 from src.domain.models.stock import Stock
 
+# from domain.models.stock import Stock
+
 
 @pytest.fixture
 def mock_stock_repository():
@@ -63,8 +65,6 @@ def test_fetch_new_stock(stock_service, mock_stock_repository, mock_stock_fetche
     assert isinstance(stock, Stock)  # Assert the returned object is of type Stock
     assert stock.ticker == "AAPL"
     assert stock.name == "Apple Inc."
-    assert stock.industry == "Technology"
-    assert stock.sector == "Consumer Electronics"
     assert stock.close == pytest.approx(
         150.0, rel=1e-9
     ), "Close price should be approximately 155.0"

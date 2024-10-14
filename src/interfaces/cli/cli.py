@@ -74,7 +74,7 @@ def fetch(ticker, period):
 @click.argument("sector")
 @click.argument("close", type=float)
 @click.argument("date")
-def create(ticker, name, industry, sector, close, date):
+def create(ticker, name, industry, sector, close, date, stock_fetcher=None):
     """Create a new stock entry."""
     if not ticker.isalpha() or len(ticker) > 5:
         raise click.ClickException("Error: Invalid ticker format.")
@@ -87,7 +87,9 @@ def create(ticker, name, industry, sector, close, date):
 
     with get_session() as session:
         stock_repo = StockRepositoryImpl(session)
-        stock_use_case = ManageStockUseCase(stock_repo)
+        if stock_fetcher is None:
+            stock_fetcher = YahooFinanceFetcher()
+        stock_use_case = ManageStockUseCase(stock_repo, stock_fetcher)
         stock_use_case.create_stock(
             ticker=ticker,
             name=name,
@@ -99,16 +101,13 @@ def create(ticker, name, industry, sector, close, date):
         click.echo(f"Created stock {ticker}")
 
 
-# Command to delete a stock entry
-
-
 @click.command()
 @click.argument("ticker")
 def delete(ticker):
     """Delete a stock entry."""
     with get_session() as session:
         stock_repo = StockRepositoryImpl(session)
-        stock_use_case = ManageStockUseCase(stock_repo)
+        stock_use_case = ManageStockUseCase(stock_repo)  # No need to pass stock_fetcher
         result = stock_use_case.delete_stock(ticker)
         if result:
             click.echo(f"Deleted stock {ticker}")
