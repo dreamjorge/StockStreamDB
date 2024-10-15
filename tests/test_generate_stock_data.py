@@ -1,5 +1,3 @@
-# tests/test_generate_stock_data.py
-
 import unittest
 from unittest.mock import patch, mock_open
 import pandas as pd
@@ -9,7 +7,7 @@ from src.application.generate_stock_data import (
     save_stock_data_to_csv,
 )
 import numpy as np
-import datetime
+from datetime import datetime  # Corrected import
 
 
 class TestGenerateStockData(unittest.TestCase):

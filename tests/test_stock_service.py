@@ -24,7 +24,7 @@ def stock_service(mock_stock_repository, mock_stock_fetcher):
     )
 
 
-def test_fetch_existing_stock(stock_service, mock_stock_repository):
+def test_fetch_existing_clear(stock_service, mock_stock_repository):
     # Arrange
     existing_stock = Stock(
         ticker="AAPL",
