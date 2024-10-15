@@ -94,8 +94,8 @@ class GitHubManager:
 
         try:
             logging.info(
-                f"Milestone '{
-                    milestone_title}' does not exist. Creating a new milestone."
+                f"Milestone '{milestone_title}' "
+                "does not exist. Creating a new milestone."
             )
             milestone_kwargs = {
                 "title": milestone_title,
@@ -109,9 +109,9 @@ class GitHubManager:
             logging.info(f"Milestone '{milestone_title}' created successfully.")
             return milestone
         except Exception as e:
-            logging.error(
-                f"Failed to create milestone '{
-                    milestone_title}': {traceback.format_exc()}"
+            logging.info(
+                f"Milestone '{milestone_title}' "
+                "does not exist. Creating a new milestone."
             )
             print(e)
             return None
@@ -205,9 +205,10 @@ class IssueManager:
                 normalized_label = label.lower()
                 if normalized_label in normalized_existing_labels:
                     logging.info(
-                        f"Using existing label: {
-                            normalized_existing_labels[normalized_label].name}"
+                        f"Using existing label: "
+                        f"{normalized_existing_labels[normalized_label].name}"
                     )
+
                 else:
                     logging.info(f"Creating new label: {label}")
                     self.github_manager.create_label(
@@ -296,10 +297,11 @@ def create_issues_from_yaml(file_path, github_manager):
         except yaml.YAMLError as e:
             logging.error(f"Error reading YAML file: {str(e)}")
 
-    logging.info(
-        f"Processing complete. Created: {created_issues}, Updated: {
-            updated_issues}, Skipped: {skipped_issues}, Failed: {failed_issues}"
-    )
+        logging.info(
+            f"Processing complete. Created: {created_issues}, "
+            f"Updated: {updated_issues}, Skipped: {skipped_issues}, "
+            f"Failed: {failed_issues}"
+        )
 
 
 if __name__ == "__main__":

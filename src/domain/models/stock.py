@@ -1,5 +1,5 @@
 from sqlalchemy import Column, String, Float, DateTime, Integer, UniqueConstraint
-from src.infrastructure.db.db_setup import Base
+from infrastructure.db.db_setup import Base
 
 
 class Stock(Base):
