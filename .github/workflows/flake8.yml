@@ -24,7 +24,7 @@ jobs:
         pip install flake8
 
     - name: Run Flake8 with Reviewdog
-      uses: reviewdog/action-flake8@v1
+      uses: reviewdog/action-flake8@v3.13.0
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         level: warning
