@@ -15,6 +15,10 @@ def plot_stock_prices(csv_file, ticker):
 
     stock_data = stock_data[stock_data["ticker"] == ticker]
 
+    # Check for duplicate dates
+    if stock_data.duplicated(subset=["date"]).any():
+        raise ValueError(f"Duplicate dates found in data for ticker {ticker}")
+
     # Create an interactive line plot
     fig = px.line(
         stock_data,
