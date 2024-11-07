@@ -25,7 +25,7 @@ def setup_database():
 
 def test_migration_setup(setup_database):
     # Point to the Alembic configuration
-    alembic_cfg = Config("alembic.ini")
+    alembic_cfg = Config("config/alembic.ini")
 
     # Run Alembic upgrade to the latest migration
     command.upgrade(alembic_cfg, "head")

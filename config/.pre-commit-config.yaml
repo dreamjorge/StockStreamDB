@@ -12,7 +12,7 @@ repos:
       - id: flake8
         additional_dependencies: ['importlib-metadata==4.13.0']
         args:
-          - --config=.flake8  # Explicitly tell pre-commit to use the .flake8 config
+          - --config=config/.flake8  # Explicitly tell pre-commit to use the .flake8 config
 
   - repo: https://github.com/pre-commit/mirrors-autopep8
     rev: v2.0.4
