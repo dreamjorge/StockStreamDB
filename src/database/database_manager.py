@@ -1,5 +1,6 @@
-from src.domain.repositories.stock_repository import StocksRepository
-from src.domain.models.stock import AggregatedStockData
+from domain.repositories.stock_repository import StocksRepository
+from domain.models.stock import AggregatedStockData
+import pandas as pd
 
 
 class DatabaseManager:
@@ -20,3 +21,13 @@ class DatabaseManager:
             )
             self.session.add(aggregated_record)
         self.session.commit()
+
+    def store_stock_data_from_csv(self, csv_file):
+        stock_data = pd.read_csv(csv_file)
+        for _, record in stock_data.iterrows():
+            aggregated_record = AggregatedStockData(
+                ticker=record["ticker"], date=record["date"], price=record["price"]
+            )
+            self.session.add(aggregated_record)
+        self.session.commit()
+        print(f"Data from {csv_file} successfully inserted into the database.")

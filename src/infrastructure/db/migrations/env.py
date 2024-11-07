@@ -1,4 +1,4 @@
-from src.infrastructure.db.models import Base
+from infrastructure.db.models import Base
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
@@ -21,7 +21,7 @@ sys.path.append(
 
 # add your model's MetaData object here for 'autogenerate' support
 # from myapp import mymodel
-# from src.infrastructure.db.models import Base  # Import your Base here
+# from infrastructure.db.models import Base  # Import your Base here
 target_metadata = Base.metadata
 
 

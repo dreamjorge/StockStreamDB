@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from src.domain.models.stock import Stock
-from src.repositories.stock_repository import StockRepository
+from domain.models.stock import Stock
+from repositories.stock_repository import StockRepository
 from datetime import datetime
 from typing import List, Optional
 from datetime import timedelta

@@ -1,8 +1,8 @@
 # src/repositories/stock_repository.py
 from abc import ABC, abstractmethod
-from src.domain.models.stock import Stock
+from domain.models.stock import Stock
 from datetime import datetime
-from src.interfaces.common.enums import Granularity
+from interfaces.common.enums import Granularity
 from typing import List
 
 

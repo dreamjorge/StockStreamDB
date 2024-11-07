@@ -11,3 +11,6 @@ radon_complexity_report.txt
 /node_modules
 /node_modules
 /logs
+*.txt
+.coverage
+.coverage

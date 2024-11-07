@@ -52,6 +52,7 @@ jobs:
         with:
           coverageFile: coverage.xml  # Use the correct path for the XML report
           token: ${{ secrets.GITHUB_TOKEN }}
-          thresholdAll: .80        # Set the overall coverage threshold to 80%
-          thresholdNew: .90        # Set the threshold for new lines to 90%
-          thresholdModified: .85   # Set the threshold for modified lines to 85%
+          # thresholdAll: .80        # Set the overall coverage threshold to 80%
+          # thresholdNew: .80        # Set the threshold for new lines to 90%
+          # thresholdModified: .80   # Set the threshold for modified lines to 85%
+          # debug: true

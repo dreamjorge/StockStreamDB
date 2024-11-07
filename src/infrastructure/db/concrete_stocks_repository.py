@@ -1,6 +1,6 @@
 # src/infrastructure/db/concrete_stocks_repository.py
-from src.domain.repositories.base_stock_repository import BaseStockRepository
-from src.infrastructure.db.models import Stock  # Import the Stock model
+from domain.repositories.base_stock_repository import BaseStockRepository
+from infrastructure.db.models import Stock  # Import the Stock model
 import pandas as pd
 
 

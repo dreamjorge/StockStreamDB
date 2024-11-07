@@ -1,6 +1,6 @@
-from src.infrastructure.fetchers.yahoo_finance_fetcher import YahooFinanceFetcher
-from src.infrastructure.db.stock_repository_impl import StockRepositoryImpl
-from src.domain.models.stock import Stock
+from infrastructure.fetchers.yahoo_finance_fetcher import YahooFinanceFetcher
+from infrastructure.db.stock_repository_impl import StockRepositoryImpl
+from domain.models.stock import Stock
 
 
 class FetchAndStoreStockService:

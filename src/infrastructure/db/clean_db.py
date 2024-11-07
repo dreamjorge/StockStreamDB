@@ -2,8 +2,8 @@ import sys
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from src.infrastructure.db.db_setup import Base
-from src.infrastructure.db.stock_repository_impl import (
+from infrastructure.db.db_setup import Base
+from infrastructure.db.stock_repository_impl import (
     Stock,
 )  # Assuming this is where your Stock model is
 
