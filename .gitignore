@@ -13,3 +13,4 @@ radon_complexity_report.txt
 /logs
 *.txt
 .coverage
+.coverage
