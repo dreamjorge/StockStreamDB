@@ -6,7 +6,13 @@ RUN useradd -ms /bin/bash nonroot
 
 # Install necessary packages
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends git curl file unzip build-essential python3 && \
+    apt-get install -y --no-install-recommends \
+        build-essential \
+        curl \
+        file \
+        git \
+        python3 \
+        unzip && \
     curl -sL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get install -y --no-install-recommends nodejs && \
     rm -rf /var/lib/apt/lists/*
