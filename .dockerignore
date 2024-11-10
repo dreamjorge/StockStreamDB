@@ -5,3 +5,6 @@ __pycache__
 *.pyc
 *.pyo
 *.pyd
+config/secrets/
+*.log
+node_modules/

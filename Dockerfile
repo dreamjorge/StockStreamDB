@@ -30,7 +30,9 @@ RUN git config --global --add safe.directory /workspaces/StockStreamDB
 USER nonroot
 
 # Copy only necessary project files, excluding sensitive data
+# Ensure no write permissions are assigned to the copied files
 COPY --chown=nonroot:nonroot . .
+RUN chmod -R a-w /workspaces/StockStreamDB
 
 # Explicitly set PYTHONPATH without referencing the previous value
 ENV PYTHONPATH="/workspaces/StockStreamDB/src"
