@@ -1,28 +1,27 @@
-# Use the official Python slim image
-FROM python:3.9-slim-buster
+# Use a specific version of the python image
+FROM python:3.9-slim
 
-# Set working directory
-WORKDIR /workspaces/StockStreamDB
+# Create a non-root user
+RUN useradd -ms /bin/bash nonroot
 
-# Copy requirements and install Python dependencies
-COPY requirements.txt .
-RUN pip install --upgrade pip && \
-    pip install -r requirements.txt
-
-# Install Git, Node.js, npm, and build-essential (for building node-gyp dependencies)
+# Install necessary packages
 RUN apt-get update && \
-    apt-get install -y git curl file unzip build-essential python3 && \
+    apt-get install -y --no-install-recommends git curl file unzip build-essential python3 && \
     curl -sL https://deb.nodesource.com/setup_18.x | bash - && \
-    apt-get install -y nodejs
+    apt-get install -y --no-install-recommends nodejs && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install devcontainer-cli from npm
-RUN npm install -g @devcontainers/cli
+RUN npm install -g @devcontainers/cli --ignore-scripts
 
 # Install ajv-cli for JSON Schema validation
-RUN npm install -g ajv-cli
+RUN npm install -g ajv-cli --ignore-scripts
 
 # Configure Git to treat the project directory as a safe directory
 RUN git config --global --add safe.directory /workspaces/StockStreamDB
+
+# Switch to the non-root user
+USER nonroot
 
 # Copy the rest of the project files into the container
 COPY . .
