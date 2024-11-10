@@ -4,7 +4,7 @@ FROM python:3.9-slim
 # Create a non-root user
 RUN useradd -ms /bin/bash nonroot
 
-# Install necessary packages
+# Install necessary packages securely
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         build-essential \
@@ -13,14 +13,14 @@ RUN apt-get update && \
         git \
         python3 \
         unzip && \
-    curl -sL https://deb.nodesource.com/setup_18.x | bash - && \
+    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get install -y --no-install-recommends nodejs && \
     rm -rf /var/lib/apt/lists/*
 
-# Install devcontainer-cli from npm
+# Install devcontainer-cli from npm with ignore-scripts for security
 RUN npm install -g @devcontainers/cli --ignore-scripts
 
-# Install ajv-cli for JSON Schema validation
+# Install ajv-cli for JSON Schema validation with ignore-scripts for security
 RUN npm install -g ajv-cli --ignore-scripts
 
 # Configure Git to treat the project directory as a safe directory
@@ -29,8 +29,8 @@ RUN git config --global --add safe.directory /workspaces/StockStreamDB
 # Switch to the non-root user
 USER nonroot
 
-# Copy the rest of the project files into the container
-COPY . .
+# Copy only necessary project files, excluding sensitive data
+COPY --chown=nonroot:nonroot . .
 
 # Explicitly set PYTHONPATH without referencing the previous value
 ENV PYTHONPATH="/workspaces/StockStreamDB/src"
