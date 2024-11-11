@@ -19,11 +19,9 @@ RUN apt-get update && \
     # Clean up APT caches to reduce image size and prevent potential leaks
     rm -rf /var/lib/apt/lists/*
 
-# Install devcontainer-cli from npm with --ignore-scripts to prevent execution of post-install scripts
-RUN npm install -g @devcontainers/cli --ignore-scripts
-
-# Install ajv-cli for JSON Schema validation with --ignore-scripts for security
-RUN npm install -g ajv-cli --ignore-scripts
+# Install npm packages with --ignore-scripts to prevent execution of shell scripts
+RUN npm install -g @devcontainers/cli --ignore-scripts && \
+    npm install -g ajv-cli --ignore-scripts
 
 # Configure Git to treat the project directory as a safe directory
 RUN git config --global --add safe.directory /workspaces/StockStreamDB
@@ -33,7 +31,7 @@ WORKDIR /workspaces/StockStreamDB
 
 # Copy only necessary project files, excluding sensitive data
 # The .dockerignore file ensures that sensitive files are not copied
-COPY . .
+COPY --chown=root:root . .
 
 # Upgrade pip to the latest version to ensure compatibility and security
 RUN pip install --upgrade pip
