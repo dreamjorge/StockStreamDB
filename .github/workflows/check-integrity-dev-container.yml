@@ -35,7 +35,7 @@ jobs:
       - name: Build DevContainer
         run: |
           echo "Building the DevContainer..."
-          docker build -f .devcontainer/Dockerfile -t devcontainer-test .
+          docker build -f Dockerfile -t devcontainer-test .
 
       # Step 5: Verify DevContainer by running a simple command
       - name: Verify DevContainer

@@ -1,6 +1,6 @@
 {
   "name": "StockStreamDB Dev Container",
-  "dockerFile": "Dockerfile",
+  "dockerFile": "../Dockerfile",
   "context": "..",
   "customizations": {
     "vscode": {
