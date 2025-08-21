@@ -1,6 +1,10 @@
 import pytest
 from unittest.mock import MagicMock
-from src.infrastructure.db.stock_repository_impl import StockRepositoryImpl, to_domain, to_persistence
+from src.infrastructure.db.stock_repository_impl import (
+    StockRepositoryImpl,
+    to_domain,
+    to_persistence,
+)
 from src.domain.models.stock import Stock
 from src.infrastructure.db.models import StockDB
 from datetime import datetime

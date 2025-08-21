@@ -105,6 +105,7 @@ cli.add_command(fetch)
 cli.add_command(create)
 cli.add_command(delete)
 
+
 def main():
     cli()
 

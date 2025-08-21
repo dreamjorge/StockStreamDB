@@ -7,9 +7,7 @@ from src.infrastructure.fetchers.stock_fetcher import StockFetcher
 class ManageStockUseCase:
     """Use case for managing stocks."""
 
-    def __init__(
-        self, stock_repo: StockRepository, stock_fetcher: StockFetcher = None
-    ):
+    def __init__(self, stock_repo: StockRepository, stock_fetcher: StockFetcher = None):
         """Initialize the use case.
 
         Args:
