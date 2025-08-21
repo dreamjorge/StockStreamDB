@@ -1,7 +1,0 @@
-flake8
-pytest
-alembic
-SQLAlchemy
-yfinance
-pandas
-click
