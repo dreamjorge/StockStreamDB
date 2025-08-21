@@ -2,11 +2,8 @@ import sys
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from infrastructure.db.db_setup import Base
-from infrastructure.db.stock_repository_impl import (
-    Stock,
-)  # Assuming this is where your Stock model is
-
+from src.infrastructure.db.db_setup import Base
+from src.infrastructure.db.models import StockDB
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/../../../")
 
@@ -25,9 +22,9 @@ Base.metadata.bind = engine
 Session = sessionmaker(bind=engine)
 
 # Drop the existing table
-Base.metadata.drop_all(engine, tables=[Stock.__table__])
+Base.metadata.drop_all(engine, tables=[StockDB.__table__])
 
 # Recreate the table
-Base.metadata.create_all(engine, tables=[Stock.__table__])
+Base.metadata.create_all(engine, tables=[StockDB.__table__])
 
 print("Stocks table recreated successfully.")

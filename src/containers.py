@@ -1,7 +1,7 @@
 from dependency_injector import containers, providers
-from infrastructure.db.stock_repository_impl import StockRepositoryImpl
-from infrastructure.fetchers.yahoo_finance_fetcher import YahooFinanceFetcher
-from use_cases.stock_service import StockService  # Import your StockService
+from src.infrastructure.db.stock_repository_impl import StockRepositoryImpl
+from src.infrastructure.fetchers.stock_fetcher import StockFetcher
+from src.use_cases.stock_service import StockService
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -15,7 +15,7 @@ class Container(containers.DeclarativeContainer):
     stock_repository = providers.Factory(StockRepositoryImpl, session=session)
 
     # Fetchers
-    stock_fetcher = providers.Factory(YahooFinanceFetcher)
+    stock_fetcher = providers.Factory(StockFetcher)
 
     # Services
     stock_service = providers.Factory(

@@ -1,100 +1,85 @@
 from sqlalchemy.orm import Session
-from domain.models.stock import Stock
-from repositories.stock_repository import StockRepository
-from datetime import datetime
 from typing import List, Optional
-from datetime import timedelta
+
+from src.domain.models.stock import Stock
+from src.domain.repositories.stock_repository import StockRepository
+from src.infrastructure.db.models import StockDB
+
+
+def to_domain(stock_db: StockDB) -> Stock:
+    return Stock(
+        id=stock_db.id,
+        ticker=stock_db.ticker,
+        name=stock_db.name,
+        industry=stock_db.industry,
+        sector=stock_db.sector,
+        date=stock_db.date,
+        open=stock_db.open,
+        high=stock_db.high,
+        low=stock_db.low,
+        close=stock_db.close,
+        volume=stock_db.volume,
+        market_cap=stock_db.market_cap,
+        pe_ratio=stock_db.pe_ratio,
+    )
+
+
+def to_persistence(stock: Stock) -> StockDB:
+    return StockDB(
+        id=stock.id,
+        ticker=stock.ticker,
+        name=stock.name,
+        industry=stock.industry,
+        sector=stock.sector,
+        date=stock.date,
+        open=stock.open,
+        high=stock.high,
+        low=stock.low,
+        close=stock.close,
+        volume=stock.volume,
+        market_cap=stock.market_cap,
+        pe_ratio=stock.pe_ratio,
+    )
 
 
 class StockRepositoryImpl(StockRepository):
     def __init__(self, session: Session):
         self.session = session
 
-    def get(self, ticker: str) -> Optional[Stock]:
-        """Fetch stock by ticker from the database."""
-        return self.session.query(Stock).filter_by(ticker=ticker).first()
-
-    def create_stock(self, stock: Stock) -> None:
-        """Insert a new stock record."""
-        self.session.add(stock)
+    def add(self, stock: Stock) -> Stock:
+        stock_db = to_persistence(stock)
+        self.session.add(stock_db)
         self.session.commit()
+        return to_domain(stock_db)
 
-    def save(self, stock: Stock) -> Stock:
-        """Save or update a stock."""
-        existing_stock = self.get(stock.ticker)
-        if existing_stock:
-            return self.update(stock)
-        else:
-            self.create_stock(stock)
-            return stock
+    def get_by_ticker(self, ticker: str) -> Optional[Stock]:
+        stock_db = self.session.query(StockDB).filter_by(ticker=ticker).first()
+        return to_domain(stock_db) if stock_db else None
+
+    def get_all(self) -> List[Stock]:
+        stocks_db = self.session.query(StockDB).all()
+        return [to_domain(stock_db) for stock_db in stocks_db]
 
     def update(self, stock: Stock) -> Stock:
-        """Update an existing stock."""
-        existing_stock = self.get(stock.ticker)
-        if existing_stock:
-            self.session.merge(stock)
+        stock_db = self.session.query(StockDB).filter_by(id=stock.id).first()
+        if stock_db:
+            stock_db.name = stock.name
+            stock_db.industry = stock.industry
+            stock_db.sector = stock.sector
+            stock_db.date = stock.date
+            stock_db.open = stock.open
+            stock_db.high = stock.high
+            stock_db.low = stock.low
+            stock_db.close = stock.close
+            stock_db.volume = stock.volume
+            stock_db.market_cap = stock.market_cap
+            stock_db.pe_ratio = stock.pe_ratio
             self.session.commit()
-            return stock
+            return to_domain(stock_db)
         return None
 
-    def delete_stock(self, ticker: str) -> bool:
-        """Delete a stock by ticker."""
-        stock = self.get_by_ticker(ticker)
-        if stock:
-            self.session.delete(stock)
+    def delete(self, ticker: str) -> None:
+        stock_db = self.session.query(StockDB).filter_by(ticker=ticker).first()
+        if stock_db:
+            self.session.delete(stock_db)
             self.session.commit()
-            return True
-        return False
-
-    def get_stock_data(
-        self, ticker: str, start: datetime, end: datetime, granularity: str = None
-    ) -> List[Stock]:
-        query = self.session.query(Stock).filter(
-            Stock.ticker == ticker, Stock.date >= start, Stock.date <= end
-        )
-
-        # Optional granularity-based logic
-        if granularity == "daily":
-            # Add any specific logic for daily granularity here if needed
-            pass
-
-        return query.all()
-
-    def get_by_ticker(self, ticker: str) -> Stock:
-        """Fetch stock by ticker from the database."""
-        return self.session.query(Stock).filter_by(ticker=ticker).first()
-
-    def stock_exists(self, ticker, period):
-        """Check if stock data for the given ticker and period exists."""
-        start_date, end_date = self.get_date_range_for_period(period)
-        query = self.session.query(Stock).filter(
-            Stock.ticker == ticker, Stock.date >= start_date, Stock.date <= end_date
-        )
-        return self.session.query(query.exists()).scalar()
-
-    def get_date_range_for_period(self, period):
-        """Helper method to calculate the date range based on the period."""
-        today = datetime.now().date()
-
-        if period == "1y":
-            start_date = today - timedelta(days=365)
-        elif period == "1m":
-            start_date = today - timedelta(days=30)
-        elif period == "1d":
-            start_date = today - timedelta(days=1)
-        elif period == "1mo":
-            start_date = today - timedelta(days=30)
-        else:
-            raise ValueError(f"Invalid period: {period}")
-
-        return start_date, today
-
-    def get_sample_stock_data(self, ticker: str):
-        return self.session.query(Stock).filter_by(ticker=ticker).limit(5).all()
-
-    def add_stock(self, stock: Stock):
-        self.session.add(stock)
-        self.session.commit()
-
-    def commit(self):
-        self.session.commit()

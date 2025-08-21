@@ -1,20 +1,7 @@
-# Example requirements.txt file
-PyGithub
-alembic
-black
-click==8.1.7
-dependency_injector
-finnhub-python
-flake8==7.1.1
-importlib-metadata==8.5.0
-numpy==2.0.2
-pandas
-plotly==5.24.1
+flake8
 pytest
-pytest-cov
-pytest-mock
-python-dotenv
-pyyaml
-requests
-sqlalchemy
+alembic
+SQLAlchemy
 yfinance
+pandas
+click

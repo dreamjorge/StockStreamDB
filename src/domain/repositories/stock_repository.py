@@ -1,24 +1,25 @@
 from abc import ABC, abstractmethod
-from domain.models.stock import Stock
+from typing import List, Optional
+from src.domain.models.stock import Stock
 
 
 class StockRepository(ABC):
     @abstractmethod
-    def create_stock(self, stock: Stock) -> Stock:
+    def add(self, stock: Stock) -> Stock:
         pass
 
     @abstractmethod
-    def get_stock_by_ticker(self, ticker: str) -> Stock:
+    def get_by_ticker(self, ticker: str) -> Optional[Stock]:
         pass
 
     @abstractmethod
-    def update_stock(self, stock: Stock) -> Stock:
+    def get_all(self) -> List[Stock]:
         pass
 
     @abstractmethod
-    def delete_stock(self, ticker: str) -> bool:
+    def update(self, stock: Stock) -> Stock:
         pass
 
     @abstractmethod
-    def save(self, stock):
+    def delete(self, ticker: str) -> None:
         pass

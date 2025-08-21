@@ -1,6 +1,7 @@
-from src.repositories.stock_repository import StockRepository
+from src.domain.repositories.stock_repository import StockRepository
 from src.domain.models.stock import Stock
 from src.infrastructure.fetchers.stock_fetcher import StockFetcher
+from datetime import datetime
 
 
 class StockService:
@@ -14,22 +15,24 @@ class StockService:
         if ticker.strip() == "":
             raise ValueError("Ticker cannot be empty")
 
-        stock = self.stock_repository.get_stock(ticker)
+        stock = self.stock_repository.get_by_ticker(ticker)
         if not stock:
-            stock_data = self.stock_fetcher.fetch(ticker)
-            stock = Stock(
-                ticker=stock_data["ticker"],
-                name=stock_data["name"],
-                industry=stock_data["industry"],
-                sector=stock_data["sector"],
-                close=stock_data["close"],
-                date=stock_data["date"],
-            )
-            self.stock_repository.create_stock(stock)
+            stock_data = self.stock_fetcher.get_stock_data(ticker)
+            if stock_data:
+                stock = Stock(
+                    id=None,
+                    ticker=ticker,
+                    name=stock_data.get("name"),
+                    industry=stock_data.get("industry"),
+                    sector=stock_data.get("sector"),
+                    date=datetime.strptime(stock_data["date"], "%Y-%m-%d"),
+                    close=stock_data["close"],
+                )
+                self.stock_repository.add(stock)
         return stock
 
-    def add_stock(self, stock: Stock) -> bool:
-        return self.stock_repository.create_stock(stock)
+    def add_stock(self, stock: Stock) -> Stock:
+        return self.stock_repository.add(stock)
 
-    def remove_stock(self, ticker: str) -> bool:
-        return self.stock_repository.delete_stock(ticker)
+    def remove_stock(self, ticker: str) -> None:
+        self.stock_repository.delete(ticker)

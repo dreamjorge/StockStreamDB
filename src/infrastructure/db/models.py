@@ -1,76 +1,51 @@
-from sqlalchemy import (
-    Column,
-    String,
-    Integer,
-    Float,
-    Date,
-    BigInteger,
-    Text,
-    ForeignKey,
-)
-from sqlalchemy.orm import declarative_base
-from sqlalchemy.orm import relationship
-
-Base = declarative_base()
+from sqlalchemy import Column, String, Float, DateTime, Integer, UniqueConstraint
+from src.infrastructure.db.db_setup import Base
 
 
-class Stock(Base):
+class StockDB(Base):
     __tablename__ = "stocks"
-
-    ticker = Column(String, primary_key=True)
+    __table_args__ = (
+        UniqueConstraint(
+            "ticker", "date", name="uix_ticker_date"
+        ),  # Ensure ticker and date combination is unique
+        {"extend_existing": True},
+    )
+    id = Column(
+        Integer, primary_key=True, autoincrement=True
+    )  # Enable autoincrement for id
+    ticker = Column(String, nullable=False)  # Remove primary_key=True from ticker
     name = Column(String)
     industry = Column(String)
     sector = Column(String)
-    close = Column(Float)
-    market_cap = Column(Float)
-    pe_ratio = Column(Float)
-    date = Column(Date)  # Make sure this exists!
+    date = Column(DateTime)
+    open = Column(Float, nullable=True)
+    high = Column(Float, nullable=True)
+    low = Column(Float, nullable=True)
+    close = Column(Float, nullable=True)
+    volume = Column(Float, nullable=True)
+    market_cap = Column(Float, nullable=True)
+    pe_ratio = Column(Float, nullable=True)
 
-    prices = relationship("StockPrice", back_populates="stock")
-    fundamentals = relationship("Fundamental", back_populates="stock")
-    sentiment_analysis = relationship("SentimentAnalysis", back_populates="stock")
-
-
-class StockPrice(Base):
-    __tablename__ = "stock_prices"
-
-    price_id = Column(Integer, primary_key=True, autoincrement=True)
-    ticker = Column(String(10), ForeignKey("stocks.ticker"))
-    date = Column(Date)
-    open = Column(Float)
-    high = Column(Float)
-    low = Column(Float)
-    close = Column(Float)
-    adjusted_close = Column(Float)
-    volume = Column(Integer)
-
-    stock = relationship("Stock", back_populates="prices")
-
-
-class Fundamental(Base):
-    __tablename__ = "fundamentals"
-
-    fundamental_id = Column(Integer, primary_key=True, autoincrement=True)
-    ticker = Column(String(10), ForeignKey("stocks.ticker"))
-    date = Column(Date)
-    pe_ratio = Column(Float)
-    eps = Column(Float)
-    market_cap = Column(BigInteger)
-    revenue = Column(BigInteger)
-    net_income = Column(BigInteger)
-    total_assets = Column(BigInteger)
-
-    stock = relationship("Stock", back_populates="fundamentals")
-
-
-class SentimentAnalysis(Base):
-    __tablename__ = "sentiment_analysis"
-
-    sentiment_id = Column(Integer, primary_key=True, autoincrement=True)
-    ticker = Column(String(10), ForeignKey("stocks.ticker"))
-    news_title = Column(Text)
-    news_content = Column(Text)
-    sentiment_score = Column(Float)
-    date = Column(Date)
-
-    stock = relationship("Stock", back_populates="sentiment_analysis")
+    def __init__(
+        self,
+        ticker,
+        name,
+        industry,
+        sector,
+        date,
+        open=None,
+        high=None,
+        low=None,
+        close=None,
+        volume=None,
+    ):
+        self.ticker = ticker
+        self.name = name
+        self.industry = industry
+        self.sector = sector
+        self.date = date
+        self.open = open
+        self.high = high
+        self.low = low
+        self.close = close
+        self.volume = volume
