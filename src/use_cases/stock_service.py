@@ -5,11 +5,30 @@ from datetime import datetime
 
 
 class StockService:
+    """Service for managing stock data."""
+
     def __init__(self, stock_repository: StockRepository, stock_fetcher: StockFetcher):
+        """Initialize the service.
+
+        Args:
+            stock_repository: The stock repository.
+            stock_fetcher: The stock fetcher.
+        """
         self.stock_repository = stock_repository
         self.stock_fetcher = stock_fetcher
 
     def fetch_stock(self, ticker: str):
+        """Fetches stock data for the given ticker.
+
+        Args:
+            ticker: The stock ticker.
+
+        Returns:
+            The stock data.
+
+        Raises:
+            ValueError: If the ticker is None or empty.
+        """
         if ticker is None:
             raise ValueError("Ticker cannot be None")
         if ticker.strip() == "":
@@ -32,7 +51,20 @@ class StockService:
         return stock
 
     def add_stock(self, stock: Stock) -> Stock:
+        """Adds a stock to the repository.
+
+        Args:
+            stock: The stock to add.
+
+        Returns:
+            The added stock.
+        """
         return self.stock_repository.add(stock)
 
     def remove_stock(self, ticker: str) -> None:
+        """Removes a stock from the repository.
+
+        Args:
+            ticker: The stock ticker.
+        """
         self.stock_repository.delete(ticker)

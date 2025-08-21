@@ -7,6 +7,7 @@ from src.infrastructure.db.models import StockDB
 
 
 def to_domain(stock_db: StockDB) -> Stock:
+    """Converts a StockDB object to a Stock domain object."""
     return Stock(
         id=stock_db.id,
         ticker=stock_db.ticker,
@@ -25,6 +26,7 @@ def to_domain(stock_db: StockDB) -> Stock:
 
 
 def to_persistence(stock: Stock) -> StockDB:
+    """Converts a Stock domain object to a StockDB object."""
     return StockDB(
         id=stock.id,
         ticker=stock.ticker,
@@ -43,24 +45,60 @@ def to_persistence(stock: Stock) -> StockDB:
 
 
 class StockRepositoryImpl(StockRepository):
+    """Implementation of the StockRepository using SQLAlchemy."""
+
     def __init__(self, session: Session):
+        """Initialize the repository.
+
+        Args:
+            session: The SQLAlchemy session.
+        """
         self.session = session
 
     def add(self, stock: Stock) -> Stock:
+        """Add a stock to the repository.
+
+        Args:
+            stock: The stock to add.
+
+        Returns:
+            The added stock.
+        """
         stock_db = to_persistence(stock)
         self.session.add(stock_db)
         self.session.commit()
         return to_domain(stock_db)
 
     def get_by_ticker(self, ticker: str) -> Optional[Stock]:
+        """Get a stock by its ticker.
+
+        Args:
+            ticker: The stock ticker.
+
+        Returns:
+            The stock if found, otherwise None.
+        """
         stock_db = self.session.query(StockDB).filter_by(ticker=ticker).first()
         return to_domain(stock_db) if stock_db else None
 
     def get_all(self) -> List[Stock]:
+        """Get all stocks from the repository.
+
+        Returns:
+            A list of all stocks.
+        """
         stocks_db = self.session.query(StockDB).all()
         return [to_domain(stock_db) for stock_db in stocks_db]
 
     def update(self, stock: Stock) -> Stock:
+        """Update a stock in the repository.
+
+        Args:
+            stock: The stock to update.
+
+        Returns:
+            The updated stock.
+        """
         stock_db = self.session.query(StockDB).filter_by(id=stock.id).first()
         if stock_db:
             stock_db.name = stock.name
@@ -79,6 +117,11 @@ class StockRepositoryImpl(StockRepository):
         return None
 
     def delete(self, ticker: str) -> None:
+        """Delete a stock from the repository.
+
+        Args:
+            ticker: The stock ticker.
+        """
         stock_db = self.session.query(StockDB).filter_by(ticker=ticker).first()
         if stock_db:
             self.session.delete(stock_db)

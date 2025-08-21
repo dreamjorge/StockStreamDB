@@ -4,7 +4,19 @@ from requests.exceptions import RequestException
 
 
 class StockFetcher:
+    """Fetches stock data from Yahoo Finance."""
+
     def get_stock_data(self, ticker: str, period: str = "1mo", retries: int = 3):
+        """Fetches stock data for the given ticker and period.
+
+        Args:
+            ticker: The stock ticker.
+            period: The period to fetch the data for (e.g., "1mo", "3mo", "1y").
+            retries: The number of times to retry fetching data in case of a connection error.
+
+        Returns:
+            A dictionary containing the close price and date, or None if data could not be fetched.
+        """
         attempt = 0
         while attempt < retries:
             try:

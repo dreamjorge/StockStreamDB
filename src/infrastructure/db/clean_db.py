@@ -5,6 +5,8 @@ from sqlalchemy.orm import sessionmaker
 from src.infrastructure.db.db_setup import Base
 from src.infrastructure.db.models import StockDB
 
+"""This script cleans the database by dropping and recreating the stocks table."""
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/../../../")
 
 # Create the engine and session

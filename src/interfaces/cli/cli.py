@@ -19,7 +19,11 @@ def cli():
 @click.command(name="check-data")
 @click.argument("ticker")
 def check_data(ticker):
-    """Print a few stock data entries for a specified ticker."""
+    """Print a few stock data entries for a specified ticker.
+
+    Args:
+        ticker: The stock ticker.
+    """
     container = Container()
     stock_service = container.stock_service()
     stock = stock_service.fetch_stock(ticker)
@@ -37,7 +41,12 @@ def check_data(ticker):
 @click.argument("ticker")
 @click.argument("period")
 def fetch(ticker, period):
-    """Fetch stock data for a specified ticker and period, and log the status."""
+    """Fetch stock data for a specified ticker and period, and log the status.
+
+    Args:
+        ticker: The stock ticker.
+        period: The period to fetch the data for.
+    """
     container = Container()
     stock_service = container.stock_service()
     stock_service.fetch_stock(ticker)
@@ -52,7 +61,16 @@ def fetch(ticker, period):
 @click.argument("close", type=float)
 @click.argument("date")
 def create(ticker, name, industry, sector, close, date):
-    """Create a new stock entry."""
+    """Create a new stock entry.
+
+    Args:
+        ticker: The stock ticker.
+        name: The name of the stock.
+        industry: The industry the stock belongs to.
+        sector: The sector the stock belongs to.
+        close: The closing price of the stock.
+        date: The date of the stock data.
+    """
     container = Container()
     stock_service = container.stock_service()
     stock = Stock(
@@ -71,7 +89,11 @@ def create(ticker, name, industry, sector, close, date):
 @click.command()
 @click.argument("ticker")
 def delete(ticker):
-    """Delete a stock entry."""
+    """Delete a stock entry.
+
+    Args:
+        ticker: The stock ticker.
+    """
     container = Container()
     stock_service = container.stock_service()
     stock_service.remove_stock(ticker)

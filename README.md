@@ -1,4 +1,3 @@
-
 # StockStreamDB
 
 StockStreamDB is a tool for collecting, analyzing, and managing stock data. The project supports fundamental and sentiment analysis, providing insights into stock performance using a command-line interface (CLI).
@@ -10,20 +9,31 @@ StockStreamDB is a tool for collecting, analyzing, and managing stock data. The 
 - **Database Integration**: Store and retrieve stock data in a local SQLite database.
 - **Command-Line Interface (CLI)**: Interact with the data collection, analysis, and database features through a simple CLI.
 
+## Clean Architecture
+
+This project follows a Clean Architecture pattern, emphasizing separation of concerns and maintainability. The core principle is that dependencies should always point inwards, meaning inner layers should not depend on outer layers.
+
+- **`src/domain`**: This is the innermost layer, containing the core business logic and enterprise-wide business rules. It defines the fundamental entities and use cases of the application. This layer should be independent of any frameworks, databases, or external services.
+
+- **`src/application`**: This layer orchestrates the use cases defined in the domain layer. It contains application-specific business rules and coordinates the flow of data to and from the domain entities. It depends on the domain layer but is independent of the infrastructure and interfaces.
+
+- **`src/infrastructure`**: This layer consists of concrete implementations of interfaces defined in the outer layers. It handles external concerns such as database interactions, external API calls, and other technical details. It depends on the application and domain layers.
+
+- **`src/interfaces`**: This is the outermost layer, responsible for handling user interactions and external communication. It includes the Command-Line Interface (CLI), REST APIs, or GUI components. It depends on the application layer to execute use cases.
+
 ## Project Structure
 
 ```bash
 StockStreamDB/
 ├── .devcontainer/         # Dev container configuration files
-├── src/                   # Source code
-│   ├── application/       # Application logic and use cases
-│   ├── domain/            # Domain models for stocks, news, etc.
-│   ├── infrastructure/    # Infrastructure like databases and API interactions
-│   ├── interfaces/        # CLI interfaces and entry points
+├── src/                   # Source code organized by Clean Architecture layers
+│   ├── application/       # Application-specific business rules and use case orchestration
+│   ├── domain/            # Core business logic, entities, and abstract interfaces
+│   ├── infrastructure/    # Concrete implementations for databases, external APIs, etc.
+│   ├── interfaces/        # User-facing interfaces (e.g., CLI, REST API)
 │   └── utils/             # Utility functions (e.g., logging)
 ├── tests/                 # Unit and integration tests
 ├── Dockerfile             # Docker configuration file
-├── requirements.txt       # Python dependencies
 ├── alembic.ini            # Database migration configuration
 └── README.md              # Project documentation
 ```
@@ -40,11 +50,6 @@ StockStreamDB/
    ```bash
    git clone https://github.com/dreamjorge/StockStreamDB.git
    cd StockStreamDB
-   ```
-
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
    ```
 
 ### Usage

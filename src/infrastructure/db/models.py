@@ -3,6 +3,8 @@ from src.infrastructure.db.db_setup import Base
 
 
 class StockDB(Base):
+    """SQLAlchemy model for stock data."""
+
     __tablename__ = "stocks"
     __table_args__ = (
         UniqueConstraint(

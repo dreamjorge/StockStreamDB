@@ -3,10 +3,21 @@ import pandas as pd
 
 
 class YahooFinanceFetcher:
-    def fetch(self, ticker, return_format="dataframe"):
+    """Fetches stock data from Yahoo Finance."""
+
+    def get_stock_data(self, ticker: str, period: str = "1mo"):
+        """Fetches stock data for the given ticker and period.
+
+        Args:
+            ticker: The stock ticker.
+            period: The period to fetch the data for (e.g., "1mo", "3mo", "1y").
+
+        Returns:
+            A dictionary containing the stock data, or None if data could not be fetched.
+        """
         try:
             stock = yf.Ticker(ticker)
-            stock_data = stock.history()
+            stock_data = stock.history(period=period)
         except Exception as e:
             print(f"Network error occurred: {e}")
             return None
@@ -19,33 +30,14 @@ class YahooFinanceFetcher:
         stock_data["date"] = pd.to_datetime(stock_data["date"])
         stock_data.columns = [col.lower() for col in stock_data.columns]
 
-        # Handle different return formats
-        if return_format == "dataframe":
-            return stock_data[["date", "open", "high", "low", "close", "volume"]]
-        elif return_format == "list":
-            return [
-                {
-                    "ticker": ticker,
-                    "date": row["date"].strftime("%Y-%m-%d"),
-                    "open": row["open"],
-                    "high": row["high"],
-                    "low": row["low"],
-                    "close": row["close"],
-                    "volume": row.get("volume", None),
-                }
-                for _, row in stock_data.iterrows()
-            ]
-        elif return_format == "dict":
-            return {
-                row["date"].strftime("%Y-%m-%d"): {
-                    "ticker": ticker,
-                    "open": row["open"],
-                    "high": row["high"],
-                    "low": row["low"],
-                    "close": row["close"],
-                    "volume": row.get("volume", None),
-                }
-                for _, row in stock_data.iterrows()
-            }
-        else:
-            raise ValueError("Unsupported return_format")
+        # Return the last row of data as a dictionary
+        last_row = stock_data.iloc[-1]
+        return {
+            "ticker": ticker,
+            "date": last_row["date"].strftime("%Y-%m-%d"),
+            "open": last_row["open"],
+            "high": last_row["high"],
+            "low": last_row["low"],
+            "close": last_row["close"],
+            "volume": last_row.get("volume", None),
+        }
