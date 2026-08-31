@@ -39,7 +39,7 @@ jobs:
           coverage xml   # Generate an XML report for external tools
 
       - name: Upload coverage HTML report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-html-report
           path: htmlcov/  # Upload the HTML coverage report
