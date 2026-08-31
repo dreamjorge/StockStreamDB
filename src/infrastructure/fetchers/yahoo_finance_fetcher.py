@@ -3,10 +3,10 @@ import pandas as pd
 
 
 class YahooFinanceFetcher:
-    def fetch(self, ticker, return_format="dataframe"):
+    def fetch(self, ticker, period="1mo", return_format="dataframe"):
         try:
             stock = yf.Ticker(ticker)
-            stock_data = stock.history()
+            stock_data = stock.history(period=period)
         except Exception as e:
             print(f"Network error occurred: {e}")
             return None

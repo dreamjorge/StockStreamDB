@@ -7,10 +7,14 @@ from infrastructure.db.stock_repository_impl import StockRepositoryImpl
 
 class ManageStockUseCase:
     def __init__(
-        self, stock_repo: StockRepositoryImpl, stock_fetcher: StockFetcher = None
+        self,
+        stock_repo: StockRepositoryImpl,
+        stock_fetcher: StockFetcher = None,
+        stock_price_repo=None,
     ):
         self.stock_repo = stock_repo
         self.stock_fetcher = stock_fetcher
+        self.stock_price_repo = stock_price_repo
 
     def create_stock(self, ticker, name, industry, sector, close, date):
         if not self.validate_stock(ticker):
@@ -30,23 +34,21 @@ class ManageStockUseCase:
 
         return stock
 
-    def fetch_and_store_stock(self, ticker: str, period: str):
-        """Fetch stock data and store it in the repository."""
+    def fetch_and_store_stock(self, ticker: str, period: str = "1mo"):
+        """Fetch OHLCV price history for ticker/period and upsert it into the
+        stock_prices table. Returns the number of rows stored, or 0 if the fetcher
+        returned no data."""
         if not self.stock_fetcher:
             raise ValueError("StockFetcher not provided.")
+        if not self.stock_price_repo:
+            raise ValueError("StockPriceRepository not provided.")
 
-        stock_data = self.stock_fetcher.fetch(ticker, period)
-        for stock_record in stock_data:
-            stock = Stock(
-                ticker=ticker,
-                date=stock_record["date"],
-                close=stock_record["close"],
-                open=stock_record["open"],
-                high=stock_record["high"],
-                low=stock_record["low"],
-                volume=stock_record["volume"],
-            )
-            self.stock_repo.save(stock)
+        frame = self.stock_fetcher.fetch(ticker, period=period)
+        if frame is None or frame.empty:
+            return 0
+
+        self.stock_price_repo.save_prices(ticker, frame)
+        return len(frame)
 
     def delete_stock(self, ticker):
         """Delete a stock by its ticker."""
@@ -77,8 +79,11 @@ class ManageStockUseCase:
         return stock
 
     def check_stock_exists(self, ticker, period):
-        """Check if stock data for the ticker and period already exists."""
-        return self.stock_repo.stock_exists(ticker, period)
+        """Check if price history for the ticker and period already exists."""
+        if not self.stock_price_repo:
+            raise ValueError("StockPriceRepository not provided.")
+        start_date, end_date = self.stock_repo.get_date_range_for_period(period)
+        return self.stock_price_repo.exists_in_range(ticker, start_date, end_date)
 
     def fetch_stock_data(self, ticker: str, period: str):
         if not self.stock_fetcher:

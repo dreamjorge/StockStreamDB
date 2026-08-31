@@ -71,20 +71,8 @@ class TestCLI(unittest.TestCase):
         # Ensure that check_stock_exists returns False, simulating no data in DB
         mock_manage_stock_use_case_instance.check_stock_exists.return_value = False
 
-        # Mock the fetch_stock_data method to return a mock data object
-        mock_fetch_data = [
-            {
-                "date": "2023-01-01",
-                "close": 150,
-                "open": 148,
-                "high": 151,
-                "low": 147,
-                "volume": 100000,
-            }
-        ]
-        mock_manage_stock_use_case_instance.fetch_stock_data.return_value = (
-            mock_fetch_data
-        )
+        # Mock fetch_and_store_stock to report 1 row stored
+        mock_manage_stock_use_case_instance.fetch_and_store_stock.return_value = 1
 
         # Define the command-line arguments
         runner = CliRunner()
@@ -92,17 +80,37 @@ class TestCLI(unittest.TestCase):
 
         # Assert that the command exited without errors
         self.assertEqual(result.exit_code, 0)
-        self.assertIn("Fetch complete for AAPL in the period 1mo.", result.output)
+        self.assertIn("Stored 1 price rows for AAPL.", result.output)
 
         # Assert that check_stock_exists was called once with correct arguments
         mock_manage_stock_use_case_instance.check_stock_exists.assert_called_once_with(
             "AAPL", "1mo"
         )
 
-        # Assert that fetch_stock_data was called once with correct arguments
-        mock_manage_stock_use_case_instance.fetch_stock_data.assert_called_once_with(
+        # Assert that fetch_and_store_stock was called once with correct arguments
+        mock_manage_stock_use_case_instance.fetch_and_store_stock.assert_called_once_with(
             "AAPL", "1mo"
         )
+
+    @patch("src.interfaces.cli.cli.ManageStockUseCase")
+    @patch("src.interfaces.cli.cli.get_session")
+    def test_cli_fetch_reports_no_data(
+        self, mock_get_session, mock_manage_stock_use_case_class
+    ):
+        """Test the CLI fetch command when the fetcher returns no data."""
+        mock_session = MagicMock()
+        mock_get_session.return_value.__enter__.return_value = mock_session
+        mock_manage_stock_use_case_instance = (
+            mock_manage_stock_use_case_class.return_value
+        )
+        mock_manage_stock_use_case_instance.check_stock_exists.return_value = False
+        mock_manage_stock_use_case_instance.fetch_and_store_stock.return_value = 0
+
+        runner = CliRunner()
+        result = runner.invoke(cli, ["fetch", "UNKNOWNTICKER", "1mo"])
+
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("No data returned for UNKNOWNTICKER.", result.output)
 
     @patch("src.interfaces.cli.cli.ManageStockUseCase")
     @patch("src.interfaces.cli.cli.get_session")

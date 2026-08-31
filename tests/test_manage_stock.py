@@ -19,6 +19,12 @@ def stock_fetcher():
 
 
 @pytest.fixture
+def stock_price_repo():
+    # Mock the StockPriceRepository
+    return MagicMock()
+
+
+@pytest.fixture
 def mock_stock():
     # Provide a mock stock object
     return {
@@ -32,9 +38,13 @@ def mock_stock():
 
 
 @pytest.fixture
-def manage_stock_use_case(stock_repo, stock_fetcher):
-    # Inject the stock_repo and stock_fetcher into the use case
-    return ManageStockUseCase(stock_repo=stock_repo, stock_fetcher=stock_fetcher)
+def manage_stock_use_case(stock_repo, stock_fetcher, stock_price_repo):
+    # Inject the stock_repo, stock_fetcher, and stock_price_repo into the use case
+    return ManageStockUseCase(
+        stock_repo=stock_repo,
+        stock_fetcher=stock_fetcher,
+        stock_price_repo=stock_price_repo,
+    )
 
 
 def test_create_stock(manage_stock_use_case, stock_repo):
@@ -177,6 +187,63 @@ def test_fetch_stock_data_no_data(manage_stock_use_case, stock_fetcher):
         result is None
     ), "The fetch_stock_data method should return None when no data is available."
     stock_fetcher.fetch.assert_called_once_with("AAPL", "1mo")
+
+
+def test_fetch_and_store_stock_saves_prices_and_returns_count(
+    manage_stock_use_case, stock_fetcher, stock_price_repo
+):
+    import pandas as pd
+
+    frame = pd.DataFrame(
+        {
+            "date": pd.to_datetime(["2024-01-02", "2024-01-03"]),
+            "open": [148.0, 150.0],
+            "high": [151.0, 152.0],
+            "low": [147.0, 149.0],
+            "close": [150.0, 151.0],
+            "volume": [1000000, 1100000],
+        }
+    )
+    stock_fetcher.fetch = MagicMock(return_value=frame)
+
+    count = manage_stock_use_case.fetch_and_store_stock("AAPL", period="1mo")
+
+    stock_fetcher.fetch.assert_called_once_with("AAPL", period="1mo")
+    stock_price_repo.save_prices.assert_called_once_with("AAPL", frame)
+    assert count == 2
+
+
+def test_fetch_and_store_stock_returns_zero_for_no_data(
+    manage_stock_use_case, stock_fetcher, stock_price_repo
+):
+    stock_fetcher.fetch = MagicMock(return_value=None)
+
+    count = manage_stock_use_case.fetch_and_store_stock("AAPL")
+
+    stock_price_repo.save_prices.assert_not_called()
+    assert count == 0
+
+
+def test_fetch_and_store_stock_requires_a_price_repo(stock_repo, stock_fetcher):
+    use_case = ManageStockUseCase(stock_repo=stock_repo, stock_fetcher=stock_fetcher)
+
+    with pytest.raises(ValueError, match="StockPriceRepository"):
+        use_case.fetch_and_store_stock("AAPL")
+
+
+def test_check_stock_exists_delegates_to_price_repo(
+    manage_stock_use_case, stock_repo, stock_price_repo
+):
+    stock_repo.get_date_range_for_period.return_value = ("2024-01-01", "2024-02-01")
+    stock_price_repo.exists_in_range.return_value = True
+
+    result = manage_stock_use_case.check_stock_exists("AAPL", "1mo")
+
+    stock_repo.get_date_range_for_period.assert_called_once_with("1mo")
+    stock_price_repo.exists_in_range.assert_called_once_with(
+        "AAPL", "2024-01-01", "2024-02-01"
+    )
+    assert result is True
 
 
 def test_update_stock_repository_called(manage_stock_use_case, stock_repo, mock_stock):
