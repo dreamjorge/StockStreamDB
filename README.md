@@ -55,8 +55,10 @@ python src/interfaces/cli/cli.py fetch AAPL 1mo
 ```
 
 This stores daily open/high/low/close/volume rows in the `stock_prices` table, keyed by
-`(ticker, date)`. Running it again with data already covering the requested period is a
-no-op (skipped with a message); otherwise existing dates are updated and new ones added.
+`(ticker, date)`. There's no local pre-check: every run contacts Yahoo Finance and
+upserts the result, updating any dates already stored and adding new ones. This is safe
+to re-run, but note it means running it repeatedly always makes a network call — it
+won't skip a fetch just because the requested period looks already covered.
 
 ### Testing
 
