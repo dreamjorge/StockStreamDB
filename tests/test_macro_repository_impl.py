@@ -45,6 +45,22 @@ class TestMacroRepositoryImpl(unittest.TestCase):
         added = self.session.add.call_args[0][0]
         self.assertEqual(added.date, date(2024, 1, 1))
 
+    def test_save_series_upserts_duplicate_dates_within_the_same_frame(self):
+        self.session.query.return_value.filter_by.return_value.all.return_value = []
+        frame = pd.DataFrame(
+            {
+                "date": pd.to_datetime(["2024-01-01", "2024-01-01"]),
+                "value": [5.25, 5.50],
+            }
+        )
+
+        self.repo.save_series("FEDFUNDS", frame)
+
+        self.assertEqual(self.session.add.call_count, 1)
+        added = self.session.add.call_args[0][0]
+        self.assertEqual(added.value, 5.50)
+        self.session.commit.assert_called_once()
+
     def test_save_series_loads_existing_observations_once_per_call(self):
         self.session.query.return_value.filter_by.return_value.all.return_value = []
         frame = pd.DataFrame(

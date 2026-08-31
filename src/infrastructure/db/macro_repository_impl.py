@@ -23,11 +23,11 @@ class MacroRepositoryImpl:
             if existing:
                 existing.value = row["value"]
             else:
-                self.session.add(
-                    MacroIndicator(
-                        series_id=series_id, date=observation_date, value=row["value"]
-                    )
+                new_record = MacroIndicator(
+                    series_id=series_id, date=observation_date, value=row["value"]
                 )
+                self.session.add(new_record)
+                existing_by_date[observation_date] = new_record
         self.session.commit()
 
     def get_series(self, series_id):
