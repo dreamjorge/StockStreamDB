@@ -1,12 +1,19 @@
 import yfinance as yf
 import pandas as pd
 
+# yfinance's period argument uses "1mo" for one month; "1m" is reserved there for a
+# one-minute *interval*. The application layer (ManageStockUseCase, StockRepositoryImpl)
+# accepts "1m" as a period synonym for "1mo", so normalize it here before calling
+# yfinance, otherwise "1m" is silently treated as an invalid period.
+_YFINANCE_PERIOD_ALIASES = {"1m": "1mo"}
+
 
 class YahooFinanceFetcher:
     def fetch(self, ticker, period="1mo", return_format="dataframe"):
+        resolved_period = _YFINANCE_PERIOD_ALIASES.get(period, period)
         try:
             stock = yf.Ticker(ticker)
-            stock_data = stock.history(period=period)
+            stock_data = stock.history(period=resolved_period)
         except Exception as e:
             print(f"Network error occurred: {e}")
             return None

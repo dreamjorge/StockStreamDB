@@ -52,15 +52,3 @@ class StockPriceRepositoryImpl:
             .order_by(StockPrice.date)
             .all()
         )
-
-    def exists_in_range(self, ticker, start_date, end_date):
-        """Return True if any price row exists for ticker within [start_date, end_date]."""
-        return self.session.query(
-            self.session.query(StockPrice)
-            .filter(
-                StockPrice.ticker == ticker,
-                StockPrice.date >= start_date,
-                StockPrice.date <= end_date,
-            )
-            .exists()
-        ).scalar()

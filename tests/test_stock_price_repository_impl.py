@@ -131,10 +131,3 @@ class TestStockPriceRepositoryImpl(unittest.TestCase):
 
         self.session.query.return_value.filter_by.assert_called_once_with(ticker="AAPL")
         self.session.query.return_value.filter_by.return_value.order_by.assert_called_once()
-
-    def test_exists_in_range_returns_scalar_result(self):
-        self.session.query.return_value.scalar.return_value = True
-
-        result = self.repo.exists_in_range("AAPL", date(2024, 1, 1), date(2024, 2, 1))
-
-        self.assertTrue(result)

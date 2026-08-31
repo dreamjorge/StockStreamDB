@@ -60,16 +60,17 @@ def fetch(ticker, period):
         stock_fetcher = YahooFinanceFetcher()
         stock_use_case = ManageStockUseCase(stock_repo, stock_fetcher, stock_price_repo)
 
-        # Check if price history for the ticker/period already exists
-        existing_data = stock_use_case.check_stock_exists(ticker, period)
-        if existing_data:
-            click.echo(f"Data for {ticker} in the period {period} already exists.")
+        # Always fetch and upsert: save_prices() merges into existing history by date,
+        # so re-running this is cheap and idempotent. A pre-fetch "already exists" check
+        # was tried and removed -- any stored date inside the requested range made it
+        # report the whole range as already covered, silently skipping a real fetch even
+        # when most of the range (e.g. fetch TICKER 1y after an earlier `1mo` fetch) was
+        # still missing.
+        count = stock_use_case.fetch_and_store_stock(ticker, period)
+        if count:
+            click.echo(f"Stored {count} price rows for {ticker}.")
         else:
-            count = stock_use_case.fetch_and_store_stock(ticker, period)
-            if count:
-                click.echo(f"Stored {count} price rows for {ticker}.")
-            else:
-                click.echo(f"No data returned for {ticker}.")
+            click.echo(f"No data returned for {ticker}.")
 
 
 # Command to create a new stock entry
