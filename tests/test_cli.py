@@ -68,9 +68,6 @@ class TestCLI(unittest.TestCase):
             mock_manage_stock_use_case_class.return_value
         )
 
-        # Ensure that check_stock_exists returns False, simulating no data in DB
-        mock_manage_stock_use_case_instance.check_stock_exists.return_value = False
-
         # Mock fetch_and_store_stock to report 1 row stored
         mock_manage_stock_use_case_instance.fetch_and_store_stock.return_value = 1
 
@@ -81,11 +78,6 @@ class TestCLI(unittest.TestCase):
         # Assert that the command exited without errors
         self.assertEqual(result.exit_code, 0)
         self.assertIn("Stored 1 price rows for AAPL.", result.output)
-
-        # Assert that check_stock_exists was called once with correct arguments
-        mock_manage_stock_use_case_instance.check_stock_exists.assert_called_once_with(
-            "AAPL", "1mo"
-        )
 
         # Assert that fetch_and_store_stock was called once with correct arguments
         mock_manage_stock_use_case_instance.fetch_and_store_stock.assert_called_once_with(
@@ -103,7 +95,6 @@ class TestCLI(unittest.TestCase):
         mock_manage_stock_use_case_instance = (
             mock_manage_stock_use_case_class.return_value
         )
-        mock_manage_stock_use_case_instance.check_stock_exists.return_value = False
         mock_manage_stock_use_case_instance.fetch_and_store_stock.return_value = 0
 
         runner = CliRunner()
@@ -111,6 +102,30 @@ class TestCLI(unittest.TestCase):
 
         self.assertEqual(result.exit_code, 0)
         self.assertIn("No data returned for UNKNOWNTICKER.", result.output)
+
+    @patch("src.interfaces.cli.cli.ManageStockUseCase")
+    @patch("src.interfaces.cli.cli.get_session")
+    def test_cli_fetch_always_fetches_even_if_range_partially_overlaps_existing_data(
+        self, mock_get_session, mock_manage_stock_use_case_class
+    ):
+        """A prior narrower fetch must not cause a wider fetch to be skipped: the CLI
+        no longer gates fetch_and_store_stock behind any pre-existence check."""
+        mock_session = MagicMock()
+        mock_get_session.return_value.__enter__.return_value = mock_session
+        mock_manage_stock_use_case_instance = (
+            mock_manage_stock_use_case_class.return_value
+        )
+        mock_manage_stock_use_case_instance.fetch_and_store_stock.return_value = 250
+
+        runner = CliRunner()
+        result = runner.invoke(cli, ["fetch", "AAPL", "1y"])
+
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("Stored 250 price rows for AAPL.", result.output)
+        mock_manage_stock_use_case_instance.fetch_and_store_stock.assert_called_once_with(
+            "AAPL", "1y"
+        )
+        mock_manage_stock_use_case_instance.check_stock_exists.assert_not_called()
 
     @patch("src.interfaces.cli.cli.ManageStockUseCase")
     @patch("src.interfaces.cli.cli.get_session")

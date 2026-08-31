@@ -231,21 +231,6 @@ def test_fetch_and_store_stock_requires_a_price_repo(stock_repo, stock_fetcher):
         use_case.fetch_and_store_stock("AAPL")
 
 
-def test_check_stock_exists_delegates_to_price_repo(
-    manage_stock_use_case, stock_repo, stock_price_repo
-):
-    stock_repo.get_date_range_for_period.return_value = ("2024-01-01", "2024-02-01")
-    stock_price_repo.exists_in_range.return_value = True
-
-    result = manage_stock_use_case.check_stock_exists("AAPL", "1mo")
-
-    stock_repo.get_date_range_for_period.assert_called_once_with("1mo")
-    stock_price_repo.exists_in_range.assert_called_once_with(
-        "AAPL", "2024-01-01", "2024-02-01"
-    )
-    assert result is True
-
-
 def test_update_stock_repository_called(manage_stock_use_case, stock_repo, mock_stock):
     # Mock an existing stock
     stock_repo.get_by_ticker = MagicMock(return_value=Stock(**mock_stock))

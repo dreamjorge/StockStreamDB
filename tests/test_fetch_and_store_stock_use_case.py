@@ -43,6 +43,20 @@ def test_fetch_defaults_period_to_one_month(mock_ticker, fetcher):
 
 
 @patch("yfinance.Ticker")
+def test_fetch_normalizes_1m_period_alias_to_1mo_for_yfinance(mock_ticker, fetcher):
+    # The application layer accepts "1m" as a synonym for a one-month period, but
+    # yfinance reserves "1m" for a one-minute *interval* and requires "1mo" for a
+    # one-month *period* -- forwarding "1m" as-is would silently fetch no/wrong data.
+    mock_history = MagicMock()
+    mock_history.return_value = pd.DataFrame()
+    mock_ticker.return_value.history = mock_history
+
+    fetcher.fetch("AAPL", period="1m")
+
+    mock_history.assert_called_once_with(period="1mo")
+
+
+@patch("yfinance.Ticker")
 def test_fetch_list_format(mock_ticker, fetcher):
     # Mock stock data returned by yfinance
     mock_history = MagicMock()

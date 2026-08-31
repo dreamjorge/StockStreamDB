@@ -78,13 +78,6 @@ class ManageStockUseCase:
         self.stock_repo.commit()
         return stock
 
-    def check_stock_exists(self, ticker, period):
-        """Check if price history for the ticker and period already exists."""
-        if not self.stock_price_repo:
-            raise ValueError("StockPriceRepository not provided.")
-        start_date, end_date = self.stock_repo.get_date_range_for_period(period)
-        return self.stock_price_repo.exists_in_range(ticker, start_date, end_date)
-
     def fetch_stock_data(self, ticker: str, period: str):
         if not self.stock_fetcher:
             raise ValueError("StockFetcher not provided.")
