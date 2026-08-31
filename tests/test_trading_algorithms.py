@@ -105,11 +105,12 @@ def test_fetch_stock_data_raises_for_empty_history():
             fetch_stock_data("MISSING")
 
 
-def test_main_runs_basic_strategy_end_to_end(capsys):
-    mock_ticker = MagicMock()
-    dates = pd.date_range("2024-01-01", periods=60, name="Date")
-    close = pd.Series(range(1, 61), dtype="float64")
-    mock_ticker.history.return_value = pd.DataFrame(
+def _mock_price_history(dates):
+    # Build the columns directly on the date index (not a default RangeIndex), since
+    # pandas aligns Series-valued DataFrame columns by index label: a mismatched index
+    # would silently turn every price into NaN instead of raising.
+    close = pd.Series(range(1, len(dates) + 1), dtype="float64", index=dates)
+    return pd.DataFrame(
         {
             "Open": close - 0.5,
             "High": close + 1.0,
@@ -119,6 +120,12 @@ def test_main_runs_basic_strategy_end_to_end(capsys):
         },
         index=dates,
     )
+
+
+def test_main_runs_basic_strategy_end_to_end(capsys):
+    mock_ticker = MagicMock()
+    dates = pd.date_range("2024-01-01", periods=60, name="Date")
+    mock_ticker.history.return_value = _mock_price_history(dates)
 
     with patch("trading_algorithms.yf.Ticker", return_value=mock_ticker):
         main("AAPL", period="1y", strategy="basic")
@@ -126,22 +133,13 @@ def test_main_runs_basic_strategy_end_to_end(capsys):
     captured = capsys.readouterr()
     assert "SMA_20" in captured.out
     assert "Signal" in captured.out
+    assert "NaN" not in captured.out
 
 
 def test_main_runs_simons_strategy_end_to_end(capsys):
     mock_ticker = MagicMock()
     dates = pd.date_range("2024-01-01", periods=60, name="Date")
-    close = pd.Series(range(1, 61), dtype="float64")
-    mock_ticker.history.return_value = pd.DataFrame(
-        {
-            "Open": close - 0.5,
-            "High": close + 1.0,
-            "Low": close - 1.0,
-            "Close": close,
-            "Volume": 1000,
-        },
-        index=dates,
-    )
+    mock_ticker.history.return_value = _mock_price_history(dates)
 
     with patch("trading_algorithms.yf.Ticker", return_value=mock_ticker):
         main("AAPL", period="1y", strategy="simons")
@@ -149,3 +147,4 @@ def test_main_runs_simons_strategy_end_to_end(capsys):
     captured = capsys.readouterr()
     assert "EMA_20" in captured.out
     assert "Z_50" in captured.out
+    assert "NaN" not in captured.out
