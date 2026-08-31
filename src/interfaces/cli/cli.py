@@ -6,6 +6,7 @@ from infrastructure.db.db_setup import get_session
 from application.use_cases.manage_stock import ManageStockUseCase
 from application.use_cases.manage_macro import ManageMacroUseCase
 from infrastructure.db.stock_repository_impl import StockRepositoryImpl
+from infrastructure.db.stock_price_repository_impl import StockPriceRepositoryImpl
 from infrastructure.db.macro_repository_impl import MacroRepositoryImpl
 from datetime import datetime
 import click
@@ -30,16 +31,16 @@ def cli():
 @click.command(name="check-data")  # Hyphenated name for CLI
 @click.argument("ticker")
 def check_data(ticker):
-    """Print a few stock data entries for a specified ticker."""
+    """Print a few price history entries for a specified ticker."""
     with get_session() as session:
-        stock_repo = StockRepositoryImpl(session)
-        data = stock_repo.get_sample_stock_data(ticker)
+        stock_price_repo = StockPriceRepositoryImpl(session)
+        data = stock_price_repo.get_prices(ticker)[:5]
         if data:
-            for stock in data:
+            for price in data:
                 click.echo(
-                    f"Ticker: {stock.ticker}, "
-                    f"Date: {stock.date}, "
-                    f"Close Price: {stock.close}"
+                    f"Ticker: {price.ticker}, "
+                    f"Date: {price.date}, "
+                    f"Close Price: {price.close}"
                 )
         else:
             click.echo(f"No data found for ticker {ticker}")
@@ -52,19 +53,23 @@ def check_data(ticker):
 @click.argument("ticker")
 @click.argument("period")
 def fetch(ticker, period):
-    """Fetch stock data for a specified ticker and period, and log the status."""
+    """Fetch OHLCV price history for a specified ticker and period, and store it."""
     with get_session() as session:
         stock_repo = StockRepositoryImpl(session)
+        stock_price_repo = StockPriceRepositoryImpl(session)
         stock_fetcher = YahooFinanceFetcher()
-        stock_use_case = ManageStockUseCase(stock_repo, stock_fetcher)
+        stock_use_case = ManageStockUseCase(stock_repo, stock_fetcher, stock_price_repo)
 
-        # Check if the stock data already exists in the database
+        # Check if price history for the ticker/period already exists
         existing_data = stock_use_case.check_stock_exists(ticker, period)
         if existing_data:
             click.echo(f"Data for {ticker} in the period {period} already exists.")
         else:
-            stock_use_case.fetch_stock_data(ticker, period)
-            click.echo(f"Fetch complete for {ticker} in the period {period}.")
+            count = stock_use_case.fetch_and_store_stock(ticker, period)
+            if count:
+                click.echo(f"Stored {count} price rows for {ticker}.")
+            else:
+                click.echo(f"No data returned for {ticker}.")
 
 
 # Command to create a new stock entry

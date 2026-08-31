@@ -49,10 +49,14 @@ StockStreamDB/
 
 ### Usage
 
-Run the CLI to fetch stock data:
+Run the CLI to fetch and store OHLCV price history for a ticker:
 ```bash
-python src/interfaces/cli/cli.py stock AAPL --period 1mo
+python src/interfaces/cli/cli.py fetch AAPL 1mo
 ```
+
+This stores daily open/high/low/close/volume rows in the `stock_prices` table, keyed by
+`(ticker, date)`. Running it again with data already covering the requested period is a
+no-op (skipped with a message); otherwise existing dates are updated and new ones added.
 
 ### Testing
 

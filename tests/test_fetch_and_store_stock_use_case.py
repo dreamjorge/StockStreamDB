@@ -10,6 +10,39 @@ def fetcher():
 
 
 @patch("yfinance.Ticker")
+def test_fetch_forwards_period_to_yfinance_history(mock_ticker, fetcher):
+    mock_history = MagicMock()
+    mock_data = pd.DataFrame(
+        {
+            "Open": [150.0],
+            "High": [155.0],
+            "Low": [149.0],
+            "Close": [152.0],
+            "Volume": [1000000],
+        },
+        index=pd.to_datetime(["2023-09-01"]),
+    )
+    mock_data = mock_data.reset_index().rename(columns={"index": "date"})
+    mock_ticker.return_value.history = mock_history
+    mock_history.return_value = mock_data
+
+    fetcher.fetch("AAPL", period="1y")
+
+    mock_history.assert_called_once_with(period="1y")
+
+
+@patch("yfinance.Ticker")
+def test_fetch_defaults_period_to_one_month(mock_ticker, fetcher):
+    mock_history = MagicMock()
+    mock_history.return_value = pd.DataFrame()
+    mock_ticker.return_value.history = mock_history
+
+    fetcher.fetch("AAPL")
+
+    mock_history.assert_called_once_with(period="1mo")
+
+
+@patch("yfinance.Ticker")
 def test_fetch_list_format(mock_ticker, fetcher):
     # Mock stock data returned by yfinance
     mock_history = MagicMock()
