@@ -7,6 +7,7 @@ from sqlalchemy import (
     BigInteger,
     Text,
     ForeignKey,
+    UniqueConstraint,
 )
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import relationship
@@ -74,3 +75,16 @@ class SentimentAnalysis(Base):
     date = Column(Date)
 
     stock = relationship("Stock", back_populates="sentiment_analysis")
+
+
+class MacroIndicator(Base):
+    """A macro-economic time series observation from FRED (e.g. interest rates,
+    inflation, unemployment). Not ticker-specific: applies market-wide for its date."""
+
+    __tablename__ = "macro_indicators"
+    __table_args__ = (UniqueConstraint("series_id", "date", name="uix_series_date"),)
+
+    macro_id = Column(Integer, primary_key=True, autoincrement=True)
+    series_id = Column(String(20), nullable=False)
+    date = Column(Date, nullable=False)
+    value = Column(Float)
