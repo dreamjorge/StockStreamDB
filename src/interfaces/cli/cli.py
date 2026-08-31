@@ -1,9 +1,12 @@
 from utils.stock_plotting import plot_stock_prices
 from application.generate_stock_data import save_stock_data_to_csv
 from infrastructure.fetchers.yahoo_finance_fetcher import YahooFinanceFetcher
+from infrastructure.fetchers.fred_fetcher import FredFetcher
 from infrastructure.db.db_setup import get_session
 from application.use_cases.manage_stock import ManageStockUseCase
+from application.use_cases.manage_macro import ManageMacroUseCase
 from infrastructure.db.stock_repository_impl import StockRepositoryImpl
+from infrastructure.db.macro_repository_impl import MacroRepositoryImpl
 from datetime import datetime
 import click
 import sys
@@ -143,6 +146,28 @@ def generate_data(tickers, start_date, end_date, output_file):
     click.echo(f"Generated stock data for {tickers} and saved to {output_file}")
 
 
+# Command to fetch a FRED macro-economic series
+
+
+@click.command(name="fetch-macro")  # Hyphenated name for CLI
+@click.argument("series_id")
+@click.option("--start", default=None, help="Start date (YYYY-MM-DD).")
+@click.option("--end", default=None, help="End date (YYYY-MM-DD).")
+def fetch_macro(series_id, start, end):
+    """Fetch a FRED macro-economic series (e.g. FEDFUNDS, CPIAUCSL, UNRATE) and store
+    it. Requires the FRED_API_KEY environment variable."""
+    with get_session() as session:
+        macro_repo = MacroRepositoryImpl(session)
+        macro_fetcher = FredFetcher()
+        macro_use_case = ManageMacroUseCase(macro_repo, macro_fetcher)
+
+        count = macro_use_case.fetch_and_store_series(series_id, start=start, end=end)
+        if count:
+            click.echo(f"Stored {count} observations for {series_id}.")
+        else:
+            click.echo(f"No data returned for {series_id}.")
+
+
 # Command to plot stock data
 
 
@@ -161,6 +186,7 @@ cli.add_command(fetch)
 cli.add_command(create)
 cli.add_command(delete)
 cli.add_command(generate_data)
+cli.add_command(fetch_macro)
 cli.add_command(plot_data)
 
 
