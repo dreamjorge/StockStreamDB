@@ -13,7 +13,7 @@ class TestMacroRepositoryImpl(unittest.TestCase):
         self.repo = MacroRepositoryImpl(self.session)
 
     def test_save_series_adds_new_observations(self):
-        self.session.query.return_value.filter_by.return_value.first.return_value = None
+        self.session.query.return_value.filter_by.return_value.all.return_value = []
         frame = pd.DataFrame(
             {"date": pd.to_datetime(["2024-01-01", "2024-02-01"]), "value": [5.25, 5.5]}
         )
@@ -24,10 +24,10 @@ class TestMacroRepositoryImpl(unittest.TestCase):
         self.session.commit.assert_called_once()
 
     def test_save_series_updates_existing_observation_value(self):
-        existing = MagicMock(value=1.0)
-        self.session.query.return_value.filter_by.return_value.first.return_value = (
+        existing = MagicMock(value=1.0, date=date(2024, 1, 1))
+        self.session.query.return_value.filter_by.return_value.all.return_value = [
             existing
-        )
+        ]
         frame = pd.DataFrame({"date": pd.to_datetime(["2024-01-01"]), "value": [5.25]})
 
         self.repo.save_series("FEDFUNDS", frame)
@@ -37,13 +37,28 @@ class TestMacroRepositoryImpl(unittest.TestCase):
         self.session.commit.assert_called_once()
 
     def test_save_series_stores_plain_date_not_timestamp(self):
-        self.session.query.return_value.filter_by.return_value.first.return_value = None
+        self.session.query.return_value.filter_by.return_value.all.return_value = []
         frame = pd.DataFrame({"date": pd.to_datetime(["2024-01-01"]), "value": [5.25]})
 
         self.repo.save_series("FEDFUNDS", frame)
 
         added = self.session.add.call_args[0][0]
         self.assertEqual(added.date, date(2024, 1, 1))
+
+    def test_save_series_loads_existing_observations_once_per_call(self):
+        self.session.query.return_value.filter_by.return_value.all.return_value = []
+        frame = pd.DataFrame(
+            {
+                "date": pd.to_datetime(["2024-01-01", "2024-02-01", "2024-03-01"]),
+                "value": [5.25, 5.5, 5.5],
+            }
+        )
+
+        self.repo.save_series("FEDFUNDS", frame)
+
+        self.session.query.return_value.filter_by.assert_called_once_with(
+            series_id="FEDFUNDS"
+        )
 
     def test_get_series_queries_by_series_id_ordered_by_date(self):
         self.repo.get_series("FEDFUNDS")

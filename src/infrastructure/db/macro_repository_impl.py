@@ -9,15 +9,17 @@ class MacroRepositoryImpl:
 
     def save_series(self, series_id, frame):
         """Upsert a DataFrame with 'date' and 'value' columns for the given series_id."""
+        existing_by_date = {
+            record.date: record
+            for record in self.session.query(MacroIndicator)
+            .filter_by(series_id=series_id)
+            .all()
+        }
         for _, row in frame.iterrows():
             observation_date = (
                 row["date"].date() if hasattr(row["date"], "date") else row["date"]
             )
-            existing = (
-                self.session.query(MacroIndicator)
-                .filter_by(series_id=series_id, date=observation_date)
-                .first()
-            )
+            existing = existing_by_date.get(observation_date)
             if existing:
                 existing.value = row["value"]
             else:
